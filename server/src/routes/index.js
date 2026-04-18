@@ -1,13 +1,22 @@
 const express = require('express');
+
+const authRoutes = require('./authRoutes');
+const portfolioRoutes = require('./portfolioRoutes');
+const tradeRoutes = require('./tradeRoutes');
+const aiRoutes = require('./aiRoutes');
+const marketRoutes = require('./marketRoutes');
+
 const router = express.Router();
-const exampleController = require('../controllers/exampleController');
 
-// Health check route
-router.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'Server is running normally' });
+router.use('/auth', authRoutes);
+router.use('/portfolio', portfolioRoutes);
+router.use('/trades', tradeRoutes);
+router.use('/ai', aiRoutes);
+router.use('/market', marketRoutes);
+
+// Health check
+router.get('/status', (req, res) => {
+  res.json({ status: 'API is running', timestamp: new Date() });
 });
-
-// Example resource routes
-router.get('/example', exampleController.getExample);
 
 module.exports = router;
