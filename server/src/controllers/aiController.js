@@ -7,7 +7,12 @@ const { OpenRouter } = require('@openrouter/sdk');
 const getTradingAdvice = asyncHandler(async (req, res) => {
   const { symbol, marketData, query } = req.body;
 
-  const prompt = `As an expert AI trading assistant, give advice for the following scenario: 
+  const prompt = `As an expert AI trading assistant, give brief, direct advice for the following scenario.
+IMPORTANT RULES: 
+1. Do NOT use markdown formatting like asterisks (*), hashes (#), or bullet points. Use plain text only.
+2. Keep your answer simple, concise. 
+3. Do not ask clarifying questions; just give your best general advice based on the info provided.
+
 Symbol: ${symbol}
 Market Data: ${JSON.stringify(marketData)}
 Query: ${query}`;
@@ -18,14 +23,16 @@ Query: ${query}`;
     });
 
     const stream = await openrouter.chat.send({
-      model: "nvidia/nemotron-3-super-120b-a12b:free",
-      messages: [
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      stream: true
+      chatRequest: {
+        model: "nvidia/nemotron-3-super-120b-a12b:free",
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        stream: true
+      }
     });
 
     let advice = "";
