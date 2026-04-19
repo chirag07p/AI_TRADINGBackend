@@ -17,7 +17,7 @@ Query: ${query}`;
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: 'google/gemini-2.0-flash-lite-preview-02-05:free', // Using a free-tier model on OpenRouter
+        model: 'openrouter/auto', // Auto-selects a working free model
         messages: [{ role: 'user', content: prompt }],
       },
       {

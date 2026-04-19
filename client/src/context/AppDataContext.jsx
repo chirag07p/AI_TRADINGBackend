@@ -46,6 +46,14 @@ export const AppDataProvider = ({ children }) => {
     ));
   };
 
+  const updateFeedback = (customerId, rating) => {
+    setCustomers(prev => prev.map(c =>
+      c.id === customerId ? { ...c, feedback: rating } : c
+    ));
+    // Re-run AI assignment since feedback affects trader matching
+    setTimeout(() => simulateAIAssignment(), 100);
+  };
+
   const registerCustomer = (data) => {
     const newCustomer = {
       id: `c_${Date.now()}`,
@@ -110,7 +118,7 @@ export const AppDataProvider = ({ children }) => {
   return (
     <AppDataContext.Provider value={{
       employees, customers, trades,
-      assignCoins, updateUser, simulateAIAssignment, registerCustomer
+      assignCoins, updateUser, updateFeedback, simulateAIAssignment, registerCustomer
     }}>
       {children}
     </AppDataContext.Provider>

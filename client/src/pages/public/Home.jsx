@@ -2,9 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Badge } from '../../components/ui/Badge';
 import { ArrowUpRight, Activity, TrendingUp, DollarSign, Zap, Shield, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { checkAPIStatus } from '../../services/api';
 
 export const Home = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [apiOnline, setApiOnline] = useState(null);
+
   const [liveTrades, setLiveTrades] = useState([
     { id: 1, pair: 'BTC/USD', amount: '0.45', type: 'Buy', time: 'Just now' },
     { id: 2, pair: 'ETH/USD', amount: '12.4', type: 'Sell', time: '1m ago' },
@@ -13,13 +18,20 @@ export const Home = () => {
   
   const [livePrice, setLivePrice] = useState(65430.50);
 
+  // Check backend health on mount
+  useEffect(() => {
+    checkAPIStatus()
+      .then(() => setApiOnline(true))
+      .catch(() => setApiOnline(false));
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       const change = (Math.random() * 10) - 5;
       setLivePrice(prev => prev + change);
 
       if (Math.random() > 0.6) {
-        const pairs = ['BTC/USD', 'ETH/USD', 'SOL/USD', 'BNB/USD'];
+        const pairs = ['BTC/USD', 'ETH/USD', 'SOL/USD', 'BNB/USD', 'AAPL', 'TSLA'];
         const types = ['Buy', 'Sell'];
         const amount = (Math.random() * 5).toFixed(2);
         const newTrade = {

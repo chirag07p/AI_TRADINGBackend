@@ -10,35 +10,45 @@ import { TrendingUp } from 'lucide-react';
 export const Login = () => {
   const [role, setRole] = useState('Customer');
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
-  const { login } = useAuth();
+  const { login, mockLogin } = useAuth();
   const { employees, customers } = useAppData();
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    
-    if (!name.trim()) return;
-    if (!password.trim()) {
-      setError('Please enter a mock password to continue.');
-      return;
-    }
+    setIsLoading(true);
 
-    let user;
-    if (role === 'Admin') {
-      user = { id: 'admin1', name: name.trim(), role: 'Admin' };
-    } else if (role === 'Employee') {
-      user = employees.find(emp => emp.name.toLowerCase().includes(name.trim().toLowerCase())) || 
-             { id: `emp_${Date.now()}`, name: name.trim(), role: 'Employee', experience: 'Junior', specialization: 'mixed' };
-    } else {
-      user = customers.find(c => c.name.toLowerCase().includes(name.trim().toLowerCase())) || 
-             { id: `c_${Date.now()}`, name: name.trim(), role: 'Customer', risk: 'Medium', feedback: 3, assignedTraderId: null, coins: 0 };
-    }
+    try {
+      if (role === 'Customer') {
+        // Real backend authentication for Customers
+        if (!email.trim() || !password.trim()) {
+          setError('Please enter email and password.');
+          setIsLoading(false);
+          return;
+        }
+        await login({ email: email.trim(), password, role: 'Customer' });
+        navigate('/customer');
+      } else {
+        // Mock login for Admin / Employee roles (existing behavior)
+        if (!name.trim()) {
+          setError('Please enter a name.');
+          setIsLoading(false);
+          return;
+        }
 
-    login(user);
+        let user;
+        if (role === 'Admin') {
+          user = { id: 'admin1', name: name.trim(), role: 'Admin' };
+        } else {
+          user = employees.find(emp => emp.name.toLowerCase().includes(name.trim().toLowerCase())) || 
+                 { id: `emp_${Date.now()}`, name: name.trim(), role: 'Employee', experience: 'Junior', specialization: 'mixed' };
+        }
 
     if (role === 'Admin') navigate('/admin');
     else if (role === 'Employee') navigate('/employee');
@@ -74,30 +84,48 @@ export const Login = () => {
               </select>
             </div>
 
-            <Input
-              label="Username / Name"
-              placeholder="e.g., Alice, Admin, John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+            {/* Show email for Customer (real auth), name for Admin/Employee (mock) */}
+            {role === 'Customer' ? (
+              <Input
+                label="Email Address"
+                type="email"
+                placeholder="e.g., john@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            ) : (
+              <Input
+                label="Username / Name"
+                placeholder="e.g., Alice, Admin, John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            )}
             
             <div>
               <Input
                 label="Password"
                 type="password"
-                placeholder="Enter any dummy password"
+                placeholder={role === 'Customer' ? 'Enter your password' : 'Enter any dummy password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">Hint: Use any text for mock auth</p>
+              {role !== 'Customer' && (
+                <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">Hint: Use any text for mock auth</p>
+              )}
             </div>
             
           </div>
 
-          <Button type="submit" className="w-full h-12 text-lg font-bold shadow-lg shadow-indigo-500/20">
-            Sign In
+          <Button 
+            type="submit" 
+            className="w-full h-12 text-lg font-bold shadow-lg shadow-indigo-500/20"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Signing in...' : 'Sign In'}
           </Button>
 
           <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">

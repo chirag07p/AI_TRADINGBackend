@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAppData } from '../../context/AppDataContext';
+import { useAuth } from '../../context/AuthContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -12,22 +12,39 @@ export const Register = () => {
   const [phone, setPhone] = useState('');
   const [investment, setInvestment] = useState('');
   const [password, setPassword] = useState('');
-  const { registerCustomer } = useAppData();
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { register } = useAuth();
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    if (!name.trim() || !password.trim()) return;
+    setError('');
+    setSuccess('');
 
-    registerCustomer({ 
-      name: name.trim(), 
-      email: email.trim(), 
-      phone: phone.trim(),
-      coins: Number(investment) || 0
-    });
-    
-    // Auto redirect to login
-    navigate('/login');
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      await register({ name: name.trim(), email: email.trim(), password });
+      setSuccess('Account created successfully! Redirecting to login...');
+      setTimeout(() => navigate('/login'), 1500);
+    } catch (err) {
+      setError(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -42,6 +59,9 @@ export const Register = () => {
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Join as a new Customer</p>
         </div>
         
+        {error && <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100 dark:bg-red-900/20 dark:border-red-900/50">{error}</div>}
+        {success && <div className="p-3 bg-green-50 text-green-600 rounded-lg text-sm border border-green-100 dark:bg-green-900/20 dark:border-green-900/50">{success}</div>}
+
         <form className="mt-8 space-y-6" onSubmit={handleRegister}>
           <div className="space-y-4">
             <Input
@@ -67,7 +87,6 @@ export const Register = () => {
               title="Please enter a valid 10-digit Indian mobile number (e.g. +91 9876543210)"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              required
             />
             <Input
               label="Initial Investment Amount ($)"
@@ -77,18 +96,25 @@ export const Register = () => {
               value={investment}
               onChange={(e) => setInvestment(e.target.value)}
             />
-            <Input
-              label="Password (Dummy)"
-              type="password"
-              placeholder="Create a dummy password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div>
+              <Input
+                label="Password"
+                type="password"
+                placeholder="Minimum 6 characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">Must be at least 6 characters</p>
+            </div>
           </div>
 
-          <Button type="submit" className="w-full h-12 text-lg font-bold shadow-lg shadow-indigo-500/20">
-            Sign Up
+          <Button 
+            type="submit" 
+            className="w-full h-12 text-lg font-bold shadow-lg shadow-indigo-500/20"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Creating Account...' : 'Sign Up'}
           </Button>
 
           <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
