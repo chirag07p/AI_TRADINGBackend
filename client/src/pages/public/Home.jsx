@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
-import { Button } from '../../components/ui/Button';
-import { ArrowUpRight, Activity, TrendingUp, DollarSign, Shield, Zap, BarChart3 } from 'lucide-react';
+import { ArrowUpRight, Activity, TrendingUp, DollarSign, Zap, Shield, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { checkAPIStatus } from '../../services/api';
@@ -46,7 +44,7 @@ export const Home = () => {
         
         setLiveTrades(prev => {
           const updated = [newTrade, ...prev];
-          return updated.slice(0, 5);
+          return updated.slice(0, 4); // Keep last 4 for cleaner UI
         });
       }
     }, 2000);
@@ -55,138 +53,150 @@ export const Home = () => {
   }, []);
 
   return (
-    <div className="space-y-12 pb-12">
+    <div className="relative min-h-[calc(100vh-4.5rem)] flex flex-col justify-center overflow-hidden pb-24">
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/20 dark:bg-indigo-600/20 blur-[120px] rounded-full pointer-events-none mix-blend-multiply dark:mix-blend-screen animate-pulse duration-10000" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-purple-500/20 dark:bg-purple-600/10 blur-[150px] rounded-full pointer-events-none mix-blend-multiply dark:mix-blend-screen" />
+
       {/* Hero Section */}
-      <section className="text-center py-16 px-4">
-        <div className="flex justify-center mb-4">
-          {apiOnline !== null && (
-            <Badge variant={apiOnline ? 'success' : 'danger'} className="px-3 py-1 text-xs">
-              {apiOnline ? '● Backend Connected' : '○ Backend Offline'}
-            </Badge>
-          )}
+      <section className="relative z-10 text-center pt-24 pb-16 px-4 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 dark:bg-gray-900/50 backdrop-blur-md border border-gray-200 dark:border-gray-800 shadow-sm mb-8 hover:scale-105 transition-transform cursor-default">
+          <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
+          <span className="w-2 h-2 rounded-full bg-indigo-500 absolute"></span>
+          <span className="text-xs font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300 ml-2">Next-Gen AI Platform</span>
         </div>
-        <Badge variant="brand" className="mb-6 px-4 py-1 text-sm bg-indigo-100 text-indigo-700">AI-Powered Trading Platform</Badge>
-        <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-6">
-          Trade Smarter, Not Harder
+        
+        <h1 className="text-6xl md:text-8xl font-black text-gray-900 dark:text-white tracking-tighter mb-8 leading-[1.1]">
+          Trade <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Smarter,</span><br/> Not Harder
         </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8 leading-relaxed">
+        
+        <p className="text-lg md:text-2xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-10 leading-relaxed font-medium">
           The first trading platform with an embedded AI that automatically pairs you with elite industry traders based exactly on your risk tolerance.
         </p>
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          {user ? (
-            <Button size="lg" className="h-14 px-8 text-lg font-bold shadow-lg shadow-indigo-500/30" onClick={() => navigate('/customer')}>
-              Go to Dashboard <ArrowUpRight className="ml-2 w-5 h-5"/>
-            </Button>
-          ) : (
-            <>
-              <Button size="lg" className="h-14 px-8 text-lg font-bold shadow-lg shadow-indigo-500/30" onClick={() => navigate('/register')}>Start Trading Now <ArrowUpRight className="ml-2 w-5 h-5"/></Button>
-              <Button variant="ghost" size="lg" className="h-14 px-8 text-lg font-semibold bg-white border border-gray-200 dark:bg-gray-900 dark:border-gray-800 shadow-sm" onClick={() => navigate('/login')}>Sign In to Dashboard</Button>
-            </>
-          )}
+        
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-5">
+          <button 
+            onClick={() => navigate('/register')}
+            className="group relative inline-flex items-center justify-center h-16 px-8 text-lg font-bold text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-2xl overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_40px_-10px_rgba(79,70,229,0.5)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 w-full sm:w-auto"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <span className="relative flex items-center gap-2">
+              Start Trading Now <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+            </span>
+          </button>
+          
+          <button 
+            onClick={() => navigate('/login')}
+            className="inline-flex items-center justify-center h-16 px-8 text-lg font-bold text-gray-900 dark:text-white bg-white/50 dark:bg-gray-900/50 backdrop-blur-md border-2 border-gray-200 dark:border-gray-800 rounded-2xl transition-all hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-700 w-full sm:w-auto"
+          >
+            Sign In to Dashboard
+          </button>
         </div>
       </section>
 
-      {/* Stats Row */}
-      <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
-        <Card className="text-center p-6">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 dark:bg-green-900/20 mb-3">
-            <DollarSign className="w-6 h-6 text-green-500" />
+      {/* Embedded Live Widget Section */}
+      <section className="relative z-10 mt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-7xl mx-auto px-4 lg:px-8 items-center animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-300">
+        
+        {/* Value Proposition Left */}
+        <div className="lg:col-span-5 flex flex-col justify-center space-y-8 lg:pr-8">
+          <div className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-sm">
+            <Zap className="w-4 h-4" /> Real-time Execution
           </div>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white">$100K</p>
-          <p className="text-sm text-gray-500 mt-1">Paper Trading Balance</p>
-        </Card>
-        <Card className="text-center p-6">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-900/20 mb-3">
-            <BarChart3 className="w-6 h-6 text-indigo-500" />
+          <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white leading-tight">
+            Experience AI logic <br/>in real-time.
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-400">
+            When you register, you create a custom risk profile. Our simulator instantly runs complex logic to find your exact elite trader match.
+          </p>
+          
+          <div className="space-y-6 pt-4">
+            <div className="flex gap-4 group cursor-default">
+               <div className="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm rounded-2xl h-fit group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 transition-colors">
+                 <Shield className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+               </div>
+               <div>
+                 <strong className="block text-gray-900 dark:text-white text-xl font-bold">Advanced Risk Profiles</strong> 
+                 <span className="text-gray-600 dark:text-gray-400 mt-1.5 block text-lg">Differentiates between High, Medium, and Low risk thresholds automatically.</span>
+               </div>
+            </div>
+            <div className="flex gap-4 group cursor-default">
+               <div className="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm rounded-2xl h-fit group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 transition-colors">
+                 <BarChart3 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+               </div>
+               <div>
+                 <strong className="block text-gray-900 dark:text-white text-xl font-bold">Live Visualizations</strong> 
+                 <span className="text-gray-600 dark:text-gray-400 mt-1.5 block text-lg">Watch simulated trades populate your dynamic wallet in real time.</span>
+               </div>
+            </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white">7+</p>
-          <p className="text-sm text-gray-500 mt-1">API Endpoints</p>
-        </Card>
-        <Card className="text-center p-6">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-900/20 mb-3">
-            <Zap className="w-6 h-6 text-purple-500" />
-          </div>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white">AI</p>
-          <p className="text-sm text-gray-500 mt-1">Powered Advice (Free)</p>
-        </Card>
-      </section>
+        </div>
 
-      {/* Real-time Widget Section */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-        <Card className="border-indigo-100 dark:border-indigo-900/40 relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-32 bg-indigo-500/10 blur-3xl rounded-full"></div>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-indigo-500" />
-              Live Market Simulation
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                <DollarSign className="w-8 h-8 text-green-500" />
+        {/* Live Simulation Card Right */}
+        <div className="lg:col-span-7 relative">
+          {/* Ornamental border glow */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[2.5rem] blur opacity-20 dark:opacity-40 animate-pulse" />
+          
+          <div className="relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl border border-gray-200/50 dark:border-gray-700/50 rounded-[2rem] shadow-2xl p-6 md:p-8 overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[80px] rounded-full pointer-events-none" />
+            
+            <div className="flex justify-between items-center mb-8 border-b border-gray-100 dark:border-gray-800 pb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-indigo-50 dark:bg-indigo-900/50 rounded-xl">
+                  <Activity className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 dark:text-white text-lg">Live Market Stream</h3>
+                  <p className="text-sm text-gray-500 uppercase tracking-widest font-semibold mt-0.5">Simulation Node</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-gray-500">Bitcoin (BTC) Mock</p>
-                <div className="text-3xl font-mono font-bold text-gray-900 dark:text-white transition-colors duration-500">
-                  ${livePrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <div className="px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold uppercase tracking-widest rounded-full flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></span> Live
+              </div>
+            </div>
+
+            <div className="mb-8 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-white dark:bg-gray-900 shadow-sm rounded-xl">
+                    <DollarSign className="w-8 h-8 text-green-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Bitcoin (BTC) Index</p>
+                    <div className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">
+                      ${livePrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                  </div>
+                </div>
+                <div className="hidden md:block">
+                  <TrendingUp className={`w-12 h-12 opacity-20 ${Math.random() > 0.5 ? 'text-green-500' : 'text-red-500'}`} />
                 </div>
               </div>
             </div>
             
             <div className="space-y-3 relative z-10">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Recent Network Trades</p>
+              <div className="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-widest px-2 pb-2">
+                <span>Asset Pair</span>
+                <span>Amount & Time</span>
+              </div>
+              
               {liveTrades.map(trade => (
-                <div key={trade.id} className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700/50 shadow-sm transition-all duration-300">
-                  <div className="flex items-center gap-3">
-                    <Badge variant={trade.type === 'Buy' ? 'success' : 'danger'} className="w-12 justify-center">{trade.type}</Badge>
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">{trade.pair}</span>
+                <div key={trade.id} className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all duration-300 animate-in slide-in-from-left-4 fade-in">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 flex items-center justify-center rounded-xl font-bold text-sm ${trade.type === 'Buy' ? 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'}`}>
+                      {trade.type}
+                    </div>
+                    <span className="font-bold text-lg text-gray-900 dark:text-gray-100">{trade.pair}</span>
                   </div>
                   <div className="text-right">
-                    <div className="font-mono text-sm font-medium text-gray-900 dark:text-gray-100">{trade.amount}</div>
-                    <div className="text-xs text-gray-400">{trade.time}</div>
+                    <div className="font-black text-gray-900 dark:text-gray-100 text-lg">{trade.amount}</div>
+                    <div className="text-xs font-semibold text-gray-400 mt-0.5">{trade.time}</div>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex flex-col justify-center space-y-8 pl-4">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Full-Stack AI Trading</h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Register to get a paper trading account with $100K. Execute BUY/SELL trades, track your portfolio in real-time, and get AI-powered trading advice — all backed by a secure Express + MongoDB API.
-          </p>
-          <ul className="space-y-6 pt-2">
-            <li className="flex gap-4">
-               <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl h-fit">
-                 <TrendingUp className="w-6 h-6 text-indigo-500" />
-               </div>
-               <div>
-                 <strong className="block text-gray-900 dark:text-white text-lg">Live Portfolio Tracking</strong> 
-                 <span className="text-gray-600 dark:text-gray-400 mt-1 block">Your wallet, assets, and trade history are stored securely in MongoDB.</span>
-               </div>
-            </li>
-            <li className="flex gap-4">
-               <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl h-fit">
-                 <Shield className="w-6 h-6 text-indigo-500" />
-               </div>
-               <div>
-                 <strong className="block text-gray-900 dark:text-white text-lg">Secure JWT Authentication</strong> 
-                 <span className="text-gray-600 dark:text-gray-400 mt-1 block">Encrypted passwords, token-based sessions, and input validation on every request.</span>
-               </div>
-            </li>
-            <li className="flex gap-4">
-               <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl h-fit">
-                 <Activity className="w-6 h-6 text-indigo-500" />
-               </div>
-               <div>
-                 <strong className="block text-gray-900 dark:text-white text-lg">AI Trading Advice</strong> 
-                 <span className="text-gray-600 dark:text-gray-400 mt-1 block">Get free AI-powered trade insights via OpenRouter's Gemini Flash model.</span>
-               </div>
-            </li>
-          </ul>
+          </div>
         </div>
+
       </section>
     </div>
   );

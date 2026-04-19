@@ -8,6 +8,10 @@ import { ProtectedRoute } from './components/layout/ProtectedRoute';
 
 // Public
 import { Home } from './pages/public/Home';
+import { Platform } from './pages/public/Platform';
+import { Pricing } from './pages/public/Pricing';
+import { About } from './pages/public/About';
+import { Contact } from './pages/public/Contact';
 
 // Auth
 import { Login } from './pages/auth/Login';
@@ -25,6 +29,7 @@ import { MyCustomers } from './pages/employee/MyCustomers';
 
 // Customer
 import { CustomerDashboard } from './pages/customer/CustomerDashboard';
+import { Onboarding } from './pages/customer/Onboarding';
 import { Profile } from './pages/customer/Profile';
 import { Wallet } from './pages/customer/Wallet';
 import { TradeHistory } from './pages/customer/TradeHistory';
@@ -49,6 +54,10 @@ function App() {
               <Routes>
                 {/* Public */}
                 <Route path="/" element={<Home />} />
+                <Route path="/platform" element={<Platform />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
 
@@ -68,6 +77,7 @@ function App() {
 
                 {/* Customer Routes */}
                 <Route element={<ProtectedRoute allowedRoles={['Customer']} />}>
+                  <Route path="/customer/onboarding" element={<Onboarding />} />
                   <Route path="/customer" element={<CustomerDashboard />} />
                   <Route path="/customer/profile" element={<Profile />} />
                   <Route path="/customer/wallet" element={<Wallet />} />

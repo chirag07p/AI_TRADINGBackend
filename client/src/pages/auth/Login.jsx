@@ -50,15 +50,9 @@ export const Login = () => {
                  { id: `emp_${Date.now()}`, name: name.trim(), role: 'Employee', experience: 'Junior', specialization: 'mixed' };
         }
 
-        mockLogin(user);
-        if (role === 'Admin') navigate('/admin');
-        else navigate('/employee');
-      }
-    } catch (err) {
-      setError(err.message || 'Login failed. Please check your credentials.');
-    } finally {
-      setIsLoading(false);
-    }
+    if (role === 'Admin') navigate('/admin');
+    else if (role === 'Employee') navigate('/employee');
+    else navigate('/customer/onboarding');
   };
 
   return (
