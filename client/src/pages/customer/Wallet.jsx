@@ -2,14 +2,57 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppDataContext';
 import { ArrowUpRight, ArrowDownRight, Wallet as WalletIcon, CreditCard, Activity } from 'lucide-react';
+import { getPortfolio, depositPortfolio, withdrawPortfolio } from '../../services/api';
 
 export const Wallet = () => {
   const { user } = useAuth();
-  const { customers } = useAppData();
-  const customerData = customers.find(c => c.id === user.id) || user;
   
-  const balance = customerData.coins || 0;
-  
+  const [balance, setBalance] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const data = await getPortfolio(user.token);
+        setBalance(data.totalBalance);
+      } catch (err) {
+        console.error('Failed to fetch portfolio', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (user?.token) {
+      fetchBalance();
+    }
+  }, [user]);
+
+  const handleAction = async (type) => {
+    const amountStr = window.prompt(`Enter amount to ${type}:`);
+    if (!amountStr) return;
+    const amount = Number(amountStr);
+    if (isNaN(amount) || amount <= 0) {
+      alert('Invalid amount');
+      return;
+    }
+    
+    setActionLoading(true);
+    try {
+      if (type === 'deposit') {
+        const data = await depositPortfolio(user.token, amount);
+        setBalance(data.totalBalance);
+      } else {
+        const data = await withdrawPortfolio(user.token, amount);
+        setBalance(data.totalBalance);
+      }
+      alert(`${type.charAt(0).toUpperCase() + type.slice(1)} successful!`);
+    } catch (err) {
+      alert(err.message || `Failed to ${type}`);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   // Simulated transactions
   const transactions = [
     { id: 1, type: 'deposit', amount: 1540.00, date: 'Today, 2:41 PM', status: 'Completed' },
@@ -50,7 +93,7 @@ export const Wallet = () => {
             <div className="relative z-10 mt-8">
               <p className="text-sm font-medium text-indigo-200 mb-1 opacity-80 uppercase tracking-widest">Available Balance</p>
               <div className="text-5xl font-black tracking-tight">
-                ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {loading ? '...' : `$${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
               </div>
             </div>
 
@@ -66,13 +109,19 @@ export const Wallet = () => {
 
           {/* Quick Actions */}
           <div className="grid grid-cols-2 gap-4">
-            <button className="flex flex-col items-center justify-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 group">
+            <button 
+              onClick={() => handleAction('deposit')}
+              disabled={actionLoading}
+              className="flex flex-col items-center justify-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 group disabled:opacity-50">
               <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <ArrowDownRight className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               </div>
               <span className="text-sm font-bold text-gray-700 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">Deposit</span>
             </button>
-            <button className="flex flex-col items-center justify-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 group">
+            <button 
+              onClick={() => handleAction('withdraw')}
+              disabled={actionLoading}
+              className="flex flex-col items-center justify-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 group disabled:opacity-50">
               <div className="w-10 h-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <ArrowUpRight className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
               </div>

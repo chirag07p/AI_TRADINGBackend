@@ -55,6 +55,25 @@ export const getPortfolio = async (token) => {
   return handleResponse(res);
 };
 
+export const depositPortfolio = async (token, amount) => {
+  const res = await fetch(`${API_URL}/portfolio/deposit`, {
+    method: 'POST',
+    headers: getHeaders(token),
+    body: JSON.stringify({ amount }),
+  });
+  return handleResponse(res);
+};
+
+export const withdrawPortfolio = async (token, amount) => {
+  const res = await fetch(`${API_URL}/portfolio/withdraw`, {
+    method: 'POST',
+    headers: getHeaders(token),
+    body: JSON.stringify({ amount }),
+  });
+  return handleResponse(res);
+};
+
+
 // ══════════════════════════════════════════════════════
 //  TRADE ENDPOINTS
 // ══════════════════════════════════════════════════════
