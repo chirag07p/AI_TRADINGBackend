@@ -5,7 +5,7 @@ import { useAppData } from '../../context/AppDataContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 
 export const Login = () => {
   const [role, setRole] = useState('Customer');
@@ -14,6 +14,12 @@ export const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Forgot password state
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSent, setForgotSent] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
   
   const { login, mockLogin } = useAuth();
   const { employees, customers } = useAppData();
@@ -50,9 +56,27 @@ export const Login = () => {
                  { id: `emp_${Date.now()}`, name: name.trim(), role: 'Employee', experience: 'Junior', specialization: 'mixed' };
         }
 
-    if (role === 'Admin') navigate('/admin');
-    else if (role === 'Employee') navigate('/employee');
-    else navigate('/customer/onboarding');
+        mockLogin(user);
+
+        if (role === 'Admin') navigate('/admin');
+        else if (role === 'Employee') navigate('/employee');
+        else navigate('/customer/onboarding');
+      }
+    } catch (err) {
+      setError(err.message || 'Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if (!forgotEmail.trim()) return;
+    setForgotLoading(true);
+    // Simulate sending reset email (no real backend)
+    await new Promise(res => setTimeout(res, 1500));
+    setForgotLoading(false);
+    setForgotSent(true);
   };
 
   return (
@@ -113,11 +137,19 @@ export const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              {role !== 'Customer' && (
-                <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">Hint: Use any text for mock auth</p>
-              )}
+              <div className="flex justify-between items-center mt-1">
+                {role !== 'Customer' ? (
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Hint: Use any text for mock auth</p>
+                ) : <div />}
+                <button 
+                  type="button" 
+                  onClick={() => setShowForgot(true)}
+                  className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+                >
+                  Forgot Password?
+                </button>
+              </div>
             </div>
-            
           </div>
 
           <Button 
@@ -133,6 +165,62 @@ export const Login = () => {
           </p>
         </form>
       </Card>
+
+      {/* Forgot Password Modal */}
+      {showForgot && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <button onClick={() => { setShowForgot(false); setForgotSent(false); }} className="p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                  <ArrowLeft className="w-5 h-5 text-gray-500" />
+                </button>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Reset Password</h3>
+              </div>
+              
+              {!forgotSent ? (
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Enter your email address and we'll send you a link to reset your password.
+                  </p>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="email"
+                        required
+                        placeholder="name@example.com"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        className="w-full h-11 pl-10 pr-4 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-sm focus:ring-2 focus:ring-indigo-600 outline-none dark:text-white"
+                      />
+                    </div>
+                  </div>
+                  <Button type="submit" className="w-full" disabled={forgotLoading}>
+                    {forgotLoading ? 'Sending...' : 'Send Reset Link'}
+                  </Button>
+                </form>
+              ) : (
+                <div className="text-center py-6 space-y-4">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-50 dark:bg-green-900/20">
+                    <CheckCircle className="h-10 w-10 text-green-500" />
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="text-lg font-bold text-gray-900 dark:text-white">Check your email</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      We've sent a password reset link to <span className="font-semibold text-gray-700 dark:text-gray-300">{forgotEmail}</span>
+                    </p>
+                  </div>
+                  <Button variant="ghost" onClick={() => { setShowForgot(false); setForgotSent(false); }} className="w-full">
+                    Back to Login
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

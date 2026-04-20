@@ -16,6 +16,7 @@ const executeTrade = asyncHandler(async (req, res) => {
   }
 
   const tradeCost = quantity * price;
+  if (!portfolio.transactions) portfolio.transactions = [];
 
   if (type === 'BUY') {
     if (portfolio.totalBalance < tradeCost) {
@@ -23,6 +24,11 @@ const executeTrade = asyncHandler(async (req, res) => {
       throw new Error('Insufficient funds');
     }
     portfolio.totalBalance -= tradeCost;
+    
+    portfolio.transactions.push({
+      type: 'buy',
+      amount: tradeCost
+    });
     
     const assetIndex = portfolio.assets.findIndex(a => a.symbol === symbol);
     if (assetIndex >= 0) {
@@ -43,6 +49,11 @@ const executeTrade = asyncHandler(async (req, res) => {
     
     portfolio.assets[assetIndex].quantity -= quantity;
     portfolio.totalBalance += tradeCost;
+    
+    portfolio.transactions.push({
+      type: 'sell',
+      amount: tradeCost
+    });
     
     // Remove asset if quantity is 0
     if (portfolio.assets[assetIndex].quantity === 0) {
