@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppDataContext';
+import { getMessages, sendMessage as sendMessageAPI } from '../../services/api';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../../components/ui/Table';
 import { Button } from '../../components/ui/Button';
@@ -34,11 +35,44 @@ const StarRating = ({ value, onChange }) => (
 );
 
 const CustomerDetailModal = ({ customer, onClose, onAssignCoins, onUpdateFeedback, onUpdateRisk }) => {
+  const { user } = useAuth();
   const [coinAmt, setCoinAmt] = useState('');
   const [note, setNote] = useState('');
   const [tempRisk, setTempRisk] = useState(customer.risk);
   const [localFeedback, setLocalFeedback] = useState(customer.feedback || 0);
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Messaging Logic
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [loadingMsg, setLoadingMsg] = useState(false);
+
+  React.useEffect(() => {
+    if (activeTab === 'messages') {
+      const fetchMsgs = async () => {
+        try {
+          const data = await getMessages(user.token, customer.id);
+          setMessages(data);
+        } catch {}
+      };
+      fetchMsgs();
+      const interval = setInterval(fetchMsgs, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab, customer.id, user.token]);
+
+  const handleSend = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
+    try {
+      await sendMessageAPI(user.token, { receiverId: customer.id, content: newMessage });
+      setNewMessage('');
+      const data = await getMessages(user.token, customer.id);
+      setMessages(data);
+    } catch (err) {
+      alert('Failed to send: ' + err.message);
+    }
+  };
 
   const handleAssign = (e) => {
     e.preventDefault();
@@ -72,7 +106,7 @@ const CustomerDetailModal = ({ customer, onClose, onAssignCoins, onUpdateFeedbac
 
         {/* Tabs */}
         <div className="flex border-b border-gray-100 dark:border-gray-800 px-6">
-          {['overview', 'allocate', 'notes'].map(tab => (
+          {['overview', 'allocate', 'messages', 'notes'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -174,6 +208,45 @@ const CustomerDetailModal = ({ customer, onClose, onAssignCoins, onUpdateFeedbac
                 <Coins className="w-4 h-4 mr-2" /> Allocate Coins
               </Button>
             </form>
+          )}
+
+          {activeTab === 'messages' && (
+            <div className="flex flex-col h-[400px]">
+              <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
+                {messages.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-gray-400">
+                    <MessageSquare className="w-12 h-12 mb-2 opacity-20" />
+                    <p className="text-sm">No messages yet.</p>
+                  </div>
+                ) : (
+                  messages.map((msg) => (
+                    <div key={msg._id} className={`flex ${msg.sender === user.id ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
+                        msg.sender === user.id 
+                          ? 'bg-indigo-600 text-white rounded-tr-none' 
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-tl-none'
+                      }`}>
+                        <p>{msg.content}</p>
+                        <p className={`text-[10px] mt-1 opacity-60 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+              <form onSubmit={handleSend} className="flex gap-2">
+                <input
+                  value={newMessage}
+                  onChange={e => setNewMessage(e.target.value)}
+                  placeholder="Type a reply..."
+                   className="flex-1 h-10 px-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 text-sm focus:ring-2 focus:ring-indigo-600 outline-none dark:text-white"
+                />
+                <Button type="submit" size="sm" className="h-10 px-4" disabled={!newMessage.trim()}>
+                  <Send className="w-4 h-4" />
+                </Button>
+              </form>
+            </div>
           )}
 
           {activeTab === 'notes' && (

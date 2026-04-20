@@ -20,19 +20,48 @@ export const AppDataProvider = ({ children }) => {
     { id: 't1', customerId: 'c1', amount: 50, date: '2026-04-10', status: 'Completed', profit: '+12%' }
   ]);
 
-  // AI Assignment Simulation
+  // Weighted scoring matching engine
+  const calculateMatchScore = (trader, client) => {
+    let score = 0;
+    // Experience Match (30 pts)
+    const expMap = { 'Expert': 30, 'Senior': 20, 'Standard': 10, 'Junior': 5 };
+    if (client.risk === 'High') score += expMap[trader.experience] || 0;
+    else if (client.risk === 'Medium') score += (trader.experience === 'Senior' ? 30 : 15);
+    else score += (trader.experience === 'Junior' ? 30 : 10);
+
+    // Skill Match (25 pts)
+    if (trader.specialization === client.risk.toLowerCase() || trader.specialization === 'mixed') score += 25;
+
+    // Performance (25 pts)
+    score += (trader.successRate / 100) * 25;
+
+    // Workload Penalty (-20 pts)
+    const assignedCount = customers.filter(c => c.assignedTraderId === trader.id).length;
+    if (assignedCount >= 5) score -= 20; 
+    else if (assignedCount >= 3) score -= 10;
+
+    return Math.max(0, Math.min(100, Math.round(score)));
+  };
+
   const simulateAIAssignment = () => {
-    setCustomers(prev => prev.map(customer => {
-      let assignedId = null;
-      if (customer.feedback <= 3) {
-        assignedId = 'emp3'; // Senior
-      } else if (customer.risk === 'High') {
-        assignedId = 'emp1'; // Expert/Experienced
-      } else {
-        assignedId = 'emp2'; // Standard
-      }
-      return { ...customer, assignedTraderId: assignedId };
-    }));
+    setCustomers(prevCustomers => {
+      return prevCustomers.map(customer => {
+        if (customer.assignedTraderId) return customer;
+
+        let bestTrader = null;
+        let highestScore = -1;
+
+        employees.forEach(trader => {
+          const score = calculateMatchScore(trader, customer);
+          if (score > highestScore) {
+            highestScore = score;
+            bestTrader = trader;
+          }
+        });
+
+        return { ...customer, assignedTraderId: bestTrader?.id || null, matchScore: highestScore };
+      });
+    });
   };
 
   useEffect(() => {
@@ -63,7 +92,10 @@ export const AppDataProvider = ({ children }) => {
       role: 'Customer',
       risk: 'Medium',
       feedback: 0,
+      portfolioValue: data.portfolioValue || Math.floor(Math.random() * 100000) + 10000,
+      complexity: Math.floor(Math.random() * 10) + 1,
       assignedTraderId: null,
+      matchScore: 0,
       coins: data.coins || 0
     };
     
