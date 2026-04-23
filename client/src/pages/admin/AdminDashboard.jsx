@@ -30,6 +30,13 @@ export const AdminDashboard = () => {
     : 0;
 
   const [pulse, setPulse] = useState(false);
+  const [running, setRunning] = useState(false);
+
+  const handleAIMatch = async () => {
+    setRunning(true);
+    await simulateAIAssignment();
+    setRunning(false);
+  };
 
   useEffect(() => {
     const timer = setInterval(() => setPulse(p => !p), 2000);
@@ -53,10 +60,12 @@ export const AdminDashboard = () => {
           </div>
           <div className="flex gap-3">
             <Button
-              onClick={simulateAIAssignment}
-              className="bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur text-white font-semibold"
+              onClick={handleAIMatch}
+              disabled={running}
+              className="bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur text-white font-semibold min-w-[140px]"
             >
-              <Zap className="w-4 h-4 mr-2" /> Run AI Match
+              <Zap className={`w-4 h-4 mr-2 ${running ? 'animate-spin' : ''}`} />
+              {running ? 'Matching...' : 'Run AI Match'}
             </Button>
             <Button
               onClick={() => navigate('/admin/analytics')}
@@ -125,13 +134,23 @@ export const AdminDashboard = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-sm text-gray-900 dark:text-gray-100 truncate">{emp.name}</p>
-                        <p className="text-xs text-gray-400 capitalize">{emp.experience} · {emp.specialization}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <p className="text-xs text-gray-400 capitalize">{emp.experience} · {emp.specialization}</p>
+                          <div className="w-16 bg-gray-100 dark:bg-gray-800 h-1 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full ${assignedCnt >= 5 ? 'bg-red-500 animate-pulse' : 'bg-indigo-500'}`} 
+                              style={{ width: `${Math.min(100, (assignedCnt/5)*100)}%` }} 
+                            />
+                          </div>
+                        </div>
                       </div>
                       <div className="text-right">
                         <p className={`text-sm font-bold ${(emp.successRate || 0) >= 85 ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-gray-100'}`}>
                           {emp.successRate || 0}%
                         </p>
-                        <p className="text-xs text-gray-400">{assignedCnt} clients</p>
+                        <p className={`text-[10px] font-bold ${assignedCnt >= 4 ? 'text-red-500' : 'text-gray-400'}`}>
+                          {assignedCnt}/5 LOAD
+                        </p>
                       </div>
                     </div>
                   );

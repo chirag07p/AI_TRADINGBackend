@@ -83,7 +83,7 @@ export const Register = () => {
               label="Mobile Number"
               type="tel"
               placeholder="+91 9876543210"
-              pattern="^(?:\+91|91)?[6789]\d{9}$"
+              pattern="^(?:\+91|91)?[6789]\d{11}$"
               title="Please enter a valid 10-digit Indian mobile number (e.g. +91 9876543210)"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}

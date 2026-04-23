@@ -185,6 +185,26 @@ export const removeFromWatchlist = async (token, id) => {
 };
 
 // ══════════════════════════════════════════════════════
+//  MESSAGE ENDPOINTS
+// ══════════════════════════════════════════════════════
+
+export const sendMessage = async (token, { receiverId, content }) => {
+  const res = await fetch(`${API_URL}/messages`, {
+    method: 'POST',
+    headers: getHeaders(token),
+    body: JSON.stringify({ receiverId, content }),
+  });
+  return handleResponse(res);
+};
+
+export const getMessages = async (token, otherUserId) => {
+  const res = await fetch(`${API_URL}/messages/${otherUserId}`, {
+    headers: getHeaders(token),
+  });
+  return handleResponse(res);
+};
+
+// ══════════════════════════════════════════════════════
 //  HEALTH CHECK
 // ══════════════════════════════════════════════════════
 

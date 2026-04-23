@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { useAppData } from '../../context/AppDataContext';
+import { useAuth } from '../../context/AuthContext';
+import { SmartAlertBar } from '../../components/admin/SmartAlertBar';
+import { PredictiveCard } from '../../components/admin/PredictiveCard';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -15,18 +18,31 @@ const RISK_LOGIC = {
 };
 
 export const AIAssignmentDashboard = () => {
+  const { user } = useAuth();
   const { customers, employees, simulateAIAssignment } = useAppData();
   const [running, setRunning] = useState(false);
   const [lastRun, setLastRun] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
 
-  const handleRerun = () => {
+  const [processStage, setProcessStage] = useState('');
+
+  const handleRerun = async () => {
     setRunning(true);
-    setTimeout(() => {
-      simulateAIAssignment();
-      setRunning(false);
-      setLastRun(new Date().toLocaleTimeString());
-    }, 1800);
+    setProcessStage('Analyzing trader performance & capacity...');
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    setProcessStage('Matching client risk profiles with specialist nodes...');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    setProcessStage('Generating AI reasoning via OpenRouter...');
+    await simulateAIAssignment();
+    
+    setProcessStage('Finalizing optimal pairings...');
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
+    setRunning(false);
+    setProcessStage('');
+    setLastRun(new Date().toLocaleTimeString());
   };
 
   const totalMatches = customers.filter(c => c.assignedTraderId).length;
@@ -39,7 +55,31 @@ export const AIAssignmentDashboard = () => {
   }));
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
+      {/* Processing Overlay */}
+      {running && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-indigo-950/20 backdrop-blur-md transition-all duration-500">
+          <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl shadow-2xl border border-indigo-100 dark:border-indigo-800 flex flex-col items-center max-w-sm text-center animate-in zoom-in-95 duration-300">
+            <div className="relative mb-6">
+              <div className="w-20 h-20 border-4 border-indigo-100 dark:border-indigo-900 rounded-full" />
+              <div className="w-20 h-20 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin absolute inset-0" />
+              <Brain className="w-8 h-8 text-indigo-600 absolute inset-0 m-auto animate-pulse" />
+            </div>
+            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">Neural Link Active</h3>
+            <p className="text-indigo-600 dark:text-indigo-400 font-bold text-sm h-10 flex items-center justify-center">
+              {processStage}
+            </p>
+            <div className="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full mt-4 overflow-hidden">
+              <div className="h-full bg-indigo-500 animate-[progress_3s_ease-in-out_infinite]" style={{ width: '100%' }} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Smart Analysis Layer (Feature 3 & 6) */}
+      <PredictiveCard token={user?.token} />
+      <SmartAlertBar token={user?.token} />
+
       {/* Hero Banner */}
       <div className="relative overflow-hidden bg-gradient-to-r from-indigo-900 via-violet-900 to-purple-900 rounded-2xl p-8 text-white shadow-2xl shadow-indigo-900/40">
         <div className="absolute -right-20 -top-20 opacity-10 pointer-events-none">
@@ -155,9 +195,14 @@ export const AIAssignmentDashboard = () => {
                     <div className="min-w-0">
                       <p className="font-bold text-gray-900 dark:text-gray-100 text-sm truncate">{customer.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <Badge variant={customer.risk === 'High' ? 'danger' : customer.risk === 'Low' ? 'success' : 'warning'} className="text-xs">
+                        <Badge variant={customer.risk === 'High' ? 'danger' : customer.risk === 'Low' ? 'success' : 'warning'} className="text-[10px]">
                           {customer.risk}
                         </Badge>
+                        {customer.matchScore && (
+                          <Badge variant="outline" className="text-[10px] bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 border-indigo-200">
+                            {customer.matchScore}% Match
+                          </Badge>
+                        )}
                         <div className="flex gap-0.5">
                           {[1,2,3].map(i => <Star key={i} className={`w-2.5 h-2.5 ${i <= (customer.feedback || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />)}
                         </div>
@@ -235,8 +280,8 @@ export const AIAssignmentDashboard = () => {
                     </div>
                     <div className="mt-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
                       <p className="text-xs text-indigo-700 dark:text-indigo-300 flex items-start gap-1.5">
-                        <Brain className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                        {RISK_LOGIC[customer.risk]?.reason || 'AI matched based on risk profile.'}
+                        <Brain className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-indigo-500" />
+                        <span className="font-semibold">AI Match Reasoning:</span> {customer.aiExplanation || RISK_LOGIC[customer.risk]?.reason}
                       </p>
                     </div>
                   </div>

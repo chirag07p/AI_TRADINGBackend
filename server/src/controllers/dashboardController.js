@@ -1,6 +1,9 @@
 const asyncHandler = require('express-async-handler');
 const Portfolio = require('../models/Portfolio');
 const Trade = require('../models/Trade');
+const User = require('../models/User');
+const { checkReallocations } = require('../services/allocationService');
+const { getPredictiveAnalysis } = require('../services/predictiveService');
 
 // @desc    Get dashboard summary (portfolio + recent trades + stats)
 // @route   GET /api/dashboard/summary
@@ -29,6 +32,16 @@ const getDashboardSummary = asyncHandler(async (req, res) => {
     return sum + (asset.quantity * asset.averagePrice);
   }, 0);
 
+  let alerts = [];
+  let prediction = null;
+
+  if (req.user.role === 'Admin') {
+    alerts = await checkReallocations();
+    const allCustomers = await User.find({ role: 'Customer' });
+    const allEmployees = await User.find({ role: 'Employee' });
+    prediction = await getPredictiveAnalysis(allCustomers, allEmployees);
+  }
+
   res.json({
     portfolio: {
       totalBalance: portfolio.totalBalance,
@@ -43,6 +56,9 @@ const getDashboardSummary = asyncHandler(async (req, res) => {
       sellTrades,
       assetsHeld: portfolio.assets.length,
     },
+    // Feature 3 & 6: Admin Alerts
+    alerts,
+    prediction
   });
 });
 

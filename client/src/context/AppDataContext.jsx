@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 const AppDataContext = createContext();
 
 export const AppDataProvider = ({ children }) => {
+  const { user } = useAuth();
   const [employees, setEmployees] = useState([
     { id: 'emp1', name: 'Alice (Expert)', role: 'Employee', experience: 'Expert', successRate: 92, specialization: 'high-risk' },
     { id: 'emp2', name: 'Bob (Standard)', role: 'Employee', experience: 'Standard', successRate: 75, specialization: 'low-risk' },
@@ -20,19 +22,72 @@ export const AppDataProvider = ({ children }) => {
     { id: 't1', customerId: 'c1', amount: 50, date: '2026-04-10', status: 'Completed', profit: '+12%' }
   ]);
 
-  // AI Assignment Simulation
-  const simulateAIAssignment = () => {
-    setCustomers(prev => prev.map(customer => {
-      let assignedId = null;
-      if (customer.feedback <= 3) {
-        assignedId = 'emp3'; // Senior
-      } else if (customer.risk === 'High') {
-        assignedId = 'emp1'; // Expert/Experienced
-      } else {
-        assignedId = 'emp2'; // Standard
+  // Weighted scoring matching engine
+  const calculateMatchScore = (trader, client) => {
+    let score = 0;
+    const expMap = { 'Expert': 30, 'Senior': 20, 'Standard': 10, 'Junior': 5 };
+    if (client.risk === 'High') score += expMap[trader.experience] || 0;
+    else if (client.risk === 'Medium') score += (trader.experience === 'Senior' ? 30 : 15);
+    else score += (trader.experience === 'Junior' ? 30 : 10);
+
+    if (trader.specialization === client.risk.toLowerCase() || trader.specialization === 'mixed') score += 25;
+    score += (trader.successRate / 100) * 25;
+
+    const assignedCount = customers.filter(c => c.assignedTraderId === trader.id).length;
+    if (assignedCount >= 5) score -= 20; 
+    else if (assignedCount >= 3) score -= 10;
+
+    return Math.max(0, Math.min(100, Math.round(score)));
+  };
+
+  const simulateAIAssignment = async () => {
+    if (user?.token && user?.role === 'Admin') {
+      try {
+        const response = await fetch('http://localhost:5000/api/allocate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user.token}`
+          }
+        });
+        const results = await response.json();
+        
+        // Update local state with real backend results
+        if (Array.isArray(results)) {
+          setCustomers(prev => prev.map(c => {
+            const match = results.find(r => r.clientName === c.name);
+            if (match) {
+              return { 
+                ...c, 
+                assignedTraderId: match.allocation.traderId, 
+                matchScore: match.allocation.matchScore,
+                aiExplanation: match.allocation.aiExplanation // Store explanation for UI
+              };
+            }
+            return c;
+          }));
+        }
+      } catch (err) {
+        console.error('Backend Allocation Failed:', err);
       }
-      return { ...customer, assignedTraderId: assignedId };
-    }));
+    }
+    
+    // Fallback/Simulated logic for non-admin or offline
+    setCustomers(prevCustomers => {
+      return prevCustomers.map(customer => {
+        if (customer.assignedTraderId) return customer;
+        let bestTrader = null;
+        let highestScore = -1;
+        employees.forEach(trader => {
+          const score = calculateMatchScore(trader, customer);
+          if (score > highestScore) {
+            highestScore = score;
+            bestTrader = trader;
+          }
+        });
+        return { ...customer, assignedTraderId: bestTrader?.id || null, matchScore: highestScore };
+      });
+    });
   };
 
   useEffect(() => {
@@ -63,7 +118,10 @@ export const AppDataProvider = ({ children }) => {
       role: 'Customer',
       risk: 'Medium',
       feedback: 0,
+      portfolioValue: data.portfolioValue || Math.floor(Math.random() * 100000) + 10000,
+      complexity: Math.floor(Math.random() * 10) + 1,
       assignedTraderId: null,
+      matchScore: 0,
       coins: data.coins || 0
     };
     

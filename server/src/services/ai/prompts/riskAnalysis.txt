@@ -1,0 +1,3 @@
+Analyze the workload of Trader {{traderName}} who is currently at {{load}}% capacity ({{current}}/{{max}}).
+Should this trader be flagged for reassignment to prevent burnout and ensure client service quality?
+Return either "FLAG" or "OK" followed by exactly one sentence of reasoning.

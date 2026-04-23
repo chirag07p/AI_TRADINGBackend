@@ -1,9 +1,11 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { cn } from './components/ui/Card';
 import { AppDataProvider } from './context/AppDataContext';
 import { Navbar } from './components/layout/Navbar';
+import { Sidebar } from './components/layout/Sidebar';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 
 // Public
@@ -22,10 +24,16 @@ import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { UsersManagement } from './pages/admin/UsersManagement';
 import { AIAssignmentDashboard } from './pages/admin/AIAssignmentDashboard';
 import { Analytics } from './pages/admin/Analytics';
+import { SystemLogs } from './pages/admin/SystemLogs';
+import { AuditTrail } from './pages/admin/AuditTrail';
+import { PlatformSettings } from './pages/admin/PlatformSettings';
 
 // Employee
 import { EmployeeDashboard } from './pages/employee/EmployeeDashboard';
 import { MyCustomers } from './pages/employee/MyCustomers';
+import { MarketAnalytics } from './pages/employee/MarketAnalytics';
+import { PerformanceInsights } from './pages/employee/PerformanceInsights';
+import { TraderHistory } from './pages/employee/TraderHistory';
 
 // Customer
 import { CustomerDashboard } from './pages/customer/CustomerDashboard';
@@ -33,16 +41,21 @@ import { Onboarding } from './pages/customer/Onboarding';
 import { Profile } from './pages/customer/Profile';
 import { Wallet } from './pages/customer/Wallet';
 import { TradeHistory } from './pages/customer/TradeHistory';
-import { Watchlist } from './pages/customer/Watchlist';
 
-const AppLayout = ({ children }) => (
-  <div className="min-h-screen w-full bg-gray-50 dark:bg-gray-950 transition-colors">
-    <Navbar />
-    <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {children}
-    </main>
-  </div>
-);
+const AppLayout = ({ children }) => {
+  const { user } = useAuth();
+  return (
+    <div className="min-h-screen w-full bg-gray-50 dark:bg-gray-950 transition-colors">
+      <Navbar />
+      <Sidebar />
+      <main className="w-full transition-all duration-300 pl-20 md:pl-24 lg:pl-64">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {children}
+        </div>
+      </main>
+    </div>
+  );
+};
 
 function App() {
   return (
@@ -67,12 +80,18 @@ function App() {
                   <Route path="/admin/users" element={<UsersManagement />} />
                   <Route path="/admin/ai-assignment" element={<AIAssignmentDashboard />} />
                   <Route path="/admin/analytics" element={<Analytics />} />
+                  <Route path="/admin/system-logs" element={<SystemLogs />} />
+                  <Route path="/admin/audit-trail" element={<AuditTrail />} />
+                  <Route path="/admin/settings" element={<PlatformSettings />} />
                 </Route>
 
                 {/* Employee Routes */}
                 <Route element={<ProtectedRoute allowedRoles={['Employee']} />}>
                   <Route path="/employee" element={<EmployeeDashboard />} />
                   <Route path="/employee/customers" element={<MyCustomers />} />
+                  <Route path="/employee/market" element={<MarketAnalytics />} />
+                  <Route path="/employee/performance" element={<PerformanceInsights />} />
+                  <Route path="/employee/history" element={<TraderHistory />} />
                 </Route>
 
                 {/* Customer Routes */}
@@ -82,7 +101,6 @@ function App() {
                   <Route path="/customer/profile" element={<Profile />} />
                   <Route path="/customer/wallet" element={<Wallet />} />
                   <Route path="/customer/history" element={<TradeHistory />} />
-                  <Route path="/customer/watchlist" element={<Watchlist />} />
                 </Route>
 
                 {/* Fallback */}

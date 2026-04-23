@@ -1,0 +1,27 @@
+{
+  "name": "solution-challenge",
+  "version": "1.0.0",
+  "description": "A modern, full-stack, enterprise-grade platform for intelligent trading allocation. AllocateIQ features a secure Express/MongoDB backend mapped to a deeply interactive and responsive React frontend. It unites retail investors, professional traders, and system administrators into one cohesive ecosystem powered by simulated markets and AI-driven logic.",
+  "main": "index.js",
+  "scripts": {
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chirag07p/AI_TRADINGBackend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/chirag07p/AI_TRADINGBackend/issues"
+  },
+  "homepage": "https://github.com/chirag07p/AI_TRADINGBackend#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

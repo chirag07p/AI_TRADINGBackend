@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Wallet, Activity, Contact, TrendingUp, DollarSign, Brain, Send, ArrowUpRight, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getDashboardSummary, getAIAdvice } from '../../services/api';
+import { getDashboardSummary, getAIAdvice, sendMessage as sendMessageAPI } from '../../services/api';
 
 export const CustomerDashboard = () => {
   const { user } = useAuth();
@@ -42,6 +42,30 @@ export const CustomerDashboard = () => {
     if (user?.token) fetchDashboard();
     else setLoading(false);
   }, [user]);
+
+  // Message Trader
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [messageContent, setMessageContent] = useState('');
+  const [messageSending, setMessageSending] = useState(false);
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!messageContent.trim() || !assignedTrader) return;
+    setMessageSending(true);
+    try {
+      await sendMessageAPI(user.token, {
+        receiverId: assignedTrader.id,
+        content: messageContent.trim()
+      });
+      alert('Message sent successfully!');
+      setMessageContent('');
+      setShowMessageModal(false);
+    } catch (err) {
+      alert(`Failed to send message: ${err.message}`);
+    } finally {
+      setMessageSending(false);
+    }
+  };
 
   const handleAskAI = async (e) => {
     e.preventDefault();
@@ -117,93 +141,261 @@ export const CustomerDashboard = () => {
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Trades */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Recent Trades</CardTitle>
-            <Button variant="ghost" className="text-xs h-8 px-3" onClick={() => navigate('/customer/history')}>View All</Button>
-          </CardHeader>
-          <CardContent>
-            {dashboard?.recentTrades?.length > 0 ? (
-              <div className="space-y-2">
-                {dashboard.recentTrades.slice(0, 5).map((t) => (
-                  <div key={t._id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Badge variant={t.type === 'BUY' ? 'success' : 'danger'} className="w-12 justify-center text-xs">{t.type}</Badge>
-                      <span className="font-semibold text-sm text-gray-900 dark:text-white">{t.symbol}</span>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-mono text-sm text-gray-900 dark:text-white">{t.quantity} × ${t.price?.toFixed(2)}</p>
-                      <p className="text-xs text-gray-400">{new Date(t.createdAt).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                ))}
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* LEFT COLUMN: Interaction & Activity (2/3 width) */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          {/* 1. AI Strategy Advisor (Primary Interaction) */}
+          <Card className="p-6 border-indigo-100 dark:border-indigo-900/30 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2.5 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-md shadow-indigo-500/20">
+                <Brain className="w-5 h-5 text-white" />
               </div>
-            ) : (
-              <div className="text-center py-6">
-                <Activity className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-sm text-gray-500">No trades yet.</p>
-                <Button variant="ghost" className="mt-2 text-sm" onClick={() => navigate('/customer/wallet')}>Execute your first trade →</Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* AI Trading Advisor */}
-        <Card className="border-purple-100 dark:border-purple-900/30">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Brain className="w-5 h-5 text-purple-500" /> AI Trading Advisor
-              <Badge className="text-xs bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">Free</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleAskAI} className="space-y-3">
-              <Input
-                label="Symbol (optional)"
-                placeholder="e.g. AAPL, BTC"
-                value={aiSymbol}
-                onChange={(e) => setAiSymbol(e.target.value)}
-              />
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Your Question</label>
-                <textarea
-                  className="flex w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white/50 dark:bg-gray-900/50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600 dark:text-white min-h-[70px] resize-none"
-                  placeholder="e.g. Should I buy AAPL right now? What's the market outlook?"
-                  value={aiQuery}
-                  onChange={(e) => setAiQuery(e.target.value)}
-                  required
-                />
+                <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">AI Strategy Advisor</h3>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Powered by NVIDIA Nemotron-3</p>
               </div>
-              <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700" disabled={aiLoading}>
-                <Send className="w-4 h-4 mr-2" /> {aiLoading ? 'Thinking...' : 'Ask AI Advisor'}
+            </div>
+
+            <form onSubmit={handleAskAI} className="space-y-4">
+              <div className="flex flex-col md:flex-row gap-3">
+                <div className="md:w-1/4">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block ml-1">Asset Symbol</label>
+                  <Input 
+                    placeholder="e.g. BTC" 
+                    className="h-11 bg-gray-50/50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-800 focus:ring-indigo-500"
+                    value={aiSymbol}
+                    onChange={(e) => setAiSymbol(e.target.value.toUpperCase())}
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block ml-1">Your Question</label>
+                  <Input 
+                    placeholder="What's the best entry strategy for this week?" 
+                    className="h-11 bg-gray-50/50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-800 focus:ring-indigo-500"
+                    value={aiQuery}
+                    onChange={(e) => setAiQuery(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              
+              <Button 
+                type="submit" 
+                className="w-full h-11 text-sm font-black bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 transition-all active:scale-[0.98]"
+                disabled={aiLoading}
+              >
+                {aiLoading ? (
+                  <span className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 animate-spin" /> ANALYZING...
+                  </span>
+                ) : 'GENERATE AI INSIGHT'}
               </Button>
             </form>
 
             {aiResponse && (
-              <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/10 rounded-lg border border-purple-100 dark:border-purple-900/30">
-                <p className="text-xs font-semibold text-purple-600 dark:text-purple-400 mb-2">AI Response:</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{aiResponse}</p>
+              <div className="mt-6 p-4 bg-indigo-50/30 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100/50 dark:border-indigo-900/30 animate-in fade-in slide-in-from-top-4 duration-500">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="flex h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
+                  <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">NVIDIA AI RECOMMENDATION</p>
+                </div>
+                <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed font-medium">
+                  {aiResponse}
+                </p>
+                <div className="mt-4 flex justify-end">
+                  <Button 
+                    variant="ghost" 
+                    className="h-7 text-[10px] font-bold text-gray-400 hover:text-indigo-600 hover:bg-transparent p-0"
+                    onClick={() => setAiResponse('')}
+                  >
+                    DISMISS ANALYSIS
+                  </Button>
+                </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </Card>
+
+          {/* 2. Recent Activity Feed */}
+          <Card className="border-gray-100 dark:border-gray-800">
+            <CardHeader className="flex flex-row items-center justify-between py-4">
+              <CardTitle className="text-sm font-black flex items-center gap-2 text-gray-900 dark:text-white uppercase tracking-widest">
+                <Activity className="w-4 h-4 text-indigo-500" /> Recent Operations
+              </CardTitle>
+              <Button variant="ghost" className="text-[10px] font-bold h-7 px-3 text-indigo-600" onClick={() => navigate('/customer/history')}>
+                FULL HISTORY
+              </Button>
+            </CardHeader>
+            <CardContent className="pb-6">
+              {dashboard?.recentTrades?.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {dashboard.recentTrades.slice(0, 6).map((t) => (
+                    <div key={t._id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-gray-100/50 dark:border-gray-800/50 hover:border-indigo-200 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs ${t.type === 'BUY' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                          {t.type.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="font-black text-sm text-gray-900 dark:text-white">{t.symbol}</p>
+                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">{t.type} ORDER</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-mono text-sm font-black text-gray-900 dark:text-white">${t.price?.toLocaleString()}</p>
+                        <p className="text-[10px] text-gray-400 font-medium">{new Date(t.createdAt).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl">
+                  <Activity className="w-8 h-8 text-gray-200 mx-auto mb-3" />
+                  <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">No recent trade signals</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* RIGHT COLUMN: Team & Portfolio Intelligence (1/3 width) */}
+        <div className="space-y-6">
+          
+          {/* 1. Your Expert Partner */}
+          <Card className="overflow-hidden border-none shadow-xl bg-gradient-to-br from-indigo-600 to-purple-700 text-white">
+            <div className="p-6 relative">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <Contact className="w-20 h-20" />
+              </div>
+              
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-xl font-black">
+                  {assignedTrader ? assignedTrader.name.charAt(0) : '?'}
+                </div>
+                <div>
+                  <h3 className="text-lg font-black leading-none mb-1">{assignedTrader ? assignedTrader.name : 'Awaiting Match'}</h3>
+                  <Badge className="bg-white/20 text-white border-none text-[10px] font-bold">
+                    {assignedTrader ? `${assignedTrader.level} Expert` : 'System Engine'}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="bg-black/10 rounded-xl p-3 backdrop-blur-sm border border-white/5">
+                  <p className="text-[10px] font-bold text-indigo-100 uppercase tracking-tighter mb-1">Success Rate</p>
+                  <p className="text-lg font-black">{assignedTrader?.successRate || '94'}%</p>
+                </div>
+                <div className="bg-black/10 rounded-xl p-3 backdrop-blur-sm border border-white/5">
+                  <p className="text-[10px] font-bold text-indigo-100 uppercase tracking-tighter mb-1">Expertise</p>
+                  <p className="text-xs font-black truncate">{assignedTrader?.specialization || 'Global Markets'}</p>
+                </div>
+              </div>
+
+              <Button 
+                className="w-full h-11 bg-white text-indigo-600 hover:bg-indigo-50 font-black text-xs uppercase tracking-widest shadow-lg"
+                onClick={() => setShowMessageModal(true)}
+              >
+                <Send className="w-4 h-4 mr-2" /> Message Trader
+              </Button>
+            </div>
+          </Card>
+
+          {/* 2. Smart Insights & Health */}
+          <Card className="p-6 border-gray-100 dark:border-gray-800 shadow-sm">
+            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+              <TrendingUp className="w-3 h-3" /> Portfolio Intelligence
+            </h3>
+            
+            <div className="space-y-5">
+              <div>
+                <div className="flex justify-between text-[10px] font-black mb-2">
+                  <span className="text-gray-400 uppercase">Allocation Status</span>
+                  <span className="text-green-500 uppercase">Optimal</span>
+                </div>
+                <div className="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-green-500 h-full w-[94%] shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
+                </div>
+              </div>
+              
+              <div>
+                <div className="flex justify-between text-[10px] font-black mb-2">
+                  <span className="text-gray-400 uppercase">Trader Attention</span>
+                  <span className="text-indigo-500 uppercase">High Priority</span>
+                </div>
+                <div className="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-indigo-500 h-full w-[82%] shadow-[0_0_8px_rgba(99,102,241,0.4)]" />
+                </div>
+              </div>
+            </div>
+
+            {assignedTrader && (
+              <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-2 mb-3">
+                  <Brain className="w-3 h-3 text-indigo-500" />
+                  <p className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-tighter">Match Logic Justification</p>
+                </div>
+                <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400 italic leading-relaxed">
+                    "{assignedTrader.name} was selected because their expertise in {assignedTrader.specialization} perfectly offsets your {customerData.risk} risk profile, ensuring a {customerData.matchScore || 92}% strategy alignment."
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            <div className="mt-8">
+              <Button 
+                variant="outline" 
+                className="w-full h-10 text-[10px] font-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+                onClick={() => navigate('/customer/wallet')}
+              >
+                <Wallet className="w-3.5 h-3.5 mr-2" /> MANAGE WALLET
+              </Button>
+            </div>
+          </Card>
+        </div>
+
       </div>
 
-      {/* Bottom Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Button variant="ghost" className="h-14 border border-gray-200 dark:border-gray-700 text-base font-semibold" onClick={() => navigate('/customer/wallet')}>
-          <Wallet className="w-5 h-5 mr-2 text-green-500" /> Trade & Wallet
-        </Button>
-        <Button variant="ghost" className="h-14 border border-gray-200 dark:border-gray-700 text-base font-semibold" onClick={() => navigate('/customer/watchlist')}>
-          <Eye className="w-5 h-5 mr-2 text-indigo-500" /> Watchlist
-        </Button>
-        <Button variant="ghost" className="h-14 border border-gray-200 dark:border-gray-700 text-base font-semibold" onClick={() => navigate('/customer/profile')}>
-          <Contact className="w-5 h-5 mr-2 text-purple-500" /> My Profile
-        </Button>
-      </div>
+      {/* Message Trader Modal */}
+      {showMessageModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200 border border-indigo-100 dark:border-indigo-900/50">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center">
+                  <Send className="w-5 h-5 text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Consult {assignedTrader?.name}</h3>
+                  <p className="text-xs text-gray-500 font-medium">Your dedicated expert advisor</p>
+                </div>
+              </div>
+
+              <form onSubmit={handleSendMessage} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Message Content</label>
+                  <textarea
+                    className="flex w-full rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 dark:text-white min-h-[150px] resize-none"
+                    placeholder="Type your question or consultation request here..."
+                    value={messageContent}
+                    onChange={(e) => setMessageContent(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div className="flex gap-3 pt-2">
+                  <Button type="button" variant="ghost" className="flex-1" onClick={() => setShowMessageModal(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" className="flex-1 bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-600/20" disabled={messageSending}>
+                    {messageSending ? 'Sending...' : 'Send Message'}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

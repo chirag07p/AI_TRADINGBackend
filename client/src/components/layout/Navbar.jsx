@@ -29,12 +29,18 @@ export const Navbar = () => {
       { name: 'Dashboard', path: '/admin' },
       { name: 'Users', path: '/admin/users' },
       { name: 'AI Logic', path: '/admin/ai-assignment' },
-      { name: 'Analytics', path: '/admin/analytics' }
+      { name: 'Analytics', path: '/admin/analytics' },
+      { name: 'System Logs', path: '/admin/system-logs' },
+      { name: 'Audit Trail', path: '/admin/audit-trail' },
+      { name: 'Settings', path: '/admin/settings' }
     ];
     if (user.role === 'Employee') return [
       { name: 'Home', path: '/' },
       { name: 'Dashboard', path: '/employee' },
-      { name: 'My Customers', path: '/employee/customers' }
+      { name: 'My Customers', path: '/employee/customers' },
+      { name: 'Market', path: '/employee/market' },
+      { name: 'Performance', path: '/employee/performance' },
+      { name: 'History', path: '/employee/history' }
     ];
     if (user.role === 'Customer') return [
       { name: 'Home', path: '/' },
@@ -58,21 +64,6 @@ export const Navbar = () => {
           <span className="premium-logo-text">TradeAI</span>
         </div>
 
-        {/* Navigation Links */}
-        <div className="premium-nav-links">
-          {getRoleLinks().map((link) => (
-            <NavLink
-              key={link.path}
-              to={link.path}
-              className={({ isActive }) =>
-                `premium-nav-link ${isActive ? 'active' : ''}`
-              }
-            >
-              {link.name}
-            </NavLink>
-          ))}
-        </div>
-
         {/* Interactions & User Profile */}
         <div className="premium-nav-actions">
           <button
@@ -83,7 +74,7 @@ export const Navbar = () => {
             {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
 
-          {user ? (
+          {user && (
             <div className="premium-user-section">
               <div className="premium-user-info">
                 <div className="premium-user-name">{user.name}</div>
@@ -93,11 +84,6 @@ export const Navbar = () => {
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>
-            </div>
-          ) : (
-            <div className="premium-auth-buttons">
-              <Button variant="ghost" onClick={() => navigate('/login')} className="rounded-xl font-bold">Sign In</Button>
-              <Button variant="primary" onClick={() => navigate('/register')} className="rounded-xl font-bold shadow-lg shadow-indigo-500/30">Get Started</Button>
             </div>
           )}
         </div>
