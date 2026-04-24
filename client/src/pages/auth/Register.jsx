@@ -10,8 +10,8 @@ export const Register = () => {
   const [role, setRole] = useState('Customer');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [countryCode, setCountryCode] = useState('+91');
   const [phone, setPhone] = useState('');
-  const [investment, setInvestment] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -38,7 +38,8 @@ export const Register = () => {
     setIsLoading(true);
 
     try {
-      await register({ name: name.trim(), email: email.trim(), password, role, phone, investment });
+      const fullPhone = `${countryCode}${phone}`;
+      await register({ name: name.trim(), email: email.trim(), password, role, phone: fullPhone });
       setSuccess('Account created successfully! Redirecting to login...');
       setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
@@ -92,23 +93,31 @@ export const Register = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <Input
-              label="Mobile Number"
-              type="tel"
-              placeholder="+91 9876543210"
-              pattern="^(?:\+91|91)?[6789]\d{11}$"
-              title="Please enter a valid 10-digit Indian mobile number (e.g. +91 9876543210)"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-            <Input
-              label="Initial Investment Amount ($)"
-              type="number"
-              min="0"
-              placeholder="e.g. 1000"
-              value={investment}
-              onChange={(e) => setInvestment(e.target.value)}
-            />
+            <div className="w-full">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mobile Number</label>
+              <div className="flex gap-2">
+                <select 
+                  value={countryCode} 
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  className="flex h-10 w-24 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900/50 px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 dark:text-white transition-shadow"
+                >
+                  <option value="+91">+91 (IN)</option>
+                  <option value="+1">+1 (US)</option>
+                  <option value="+44">+44 (UK)</option>
+                  <option value="+61">+61 (AU)</option>
+                  <option value="+81">+81 (JP)</option>
+                  <option value="+971">+971 (UAE)</option>
+                  <option value="+65">+65 (SG)</option>
+                </select>
+                <input
+                  type="tel"
+                  placeholder="9876543210"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                  className="flex-1 h-10 rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 dark:text-gray-100 transition-shadow"
+                />
+              </div>
+            </div>
             <div>
               <Input
                 label="Password"
