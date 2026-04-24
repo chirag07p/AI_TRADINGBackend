@@ -6,7 +6,7 @@ const generateToken = require('../utils/generateToken');
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role, phone, investment } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -15,13 +15,21 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('User already exists');
   }
 
-  const user = await User.create({ name, email, password });
+  const user = await User.create({ 
+    name, 
+    email, 
+    password, 
+    role: role || 'Customer',
+    phone,
+    portfolioValue: investment ? Number(investment) : 0
+  });
 
   if (user) {
     res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
       token: generateToken(user._id),
     });
   } else {
@@ -43,6 +51,7 @@ const authUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
       token: generateToken(user._id),
     });
   } else {

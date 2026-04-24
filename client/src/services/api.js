@@ -26,11 +26,11 @@ const handleResponse = async (res) => {
 //  AUTH ENDPOINTS
 // ══════════════════════════════════════════════════════
 
-export const registerUser = async ({ name, email, password }) => {
+export const registerUser = async ({ name, email, password, role, phone, investment }) => {
   const res = await fetch(`${API_URL}/auth/register`, {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify({ name, email, password, role, phone, investment }),
   });
   return handleResponse(res);
 };

@@ -7,6 +7,7 @@ import { Input } from '../../components/ui/Input';
 import { UserPlus } from 'lucide-react';
 
 export const Register = () => {
+  const [role, setRole] = useState('Customer');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -37,7 +38,7 @@ export const Register = () => {
     setIsLoading(true);
 
     try {
-      await register({ name: name.trim(), email: email.trim(), password });
+      await register({ name: name.trim(), email: email.trim(), password, role, phone, investment });
       setSuccess('Account created successfully! Redirecting to login...');
       setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
@@ -48,15 +49,15 @@ export const Register = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="max-w-md w-full space-y-8 p-6 lg:p-8 border-indigo-100 dark:border-indigo-900/50 relative overflow-hidden">
+    <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+      <Card className="max-w-lg w-full space-y-8 p-6 lg:p-8 border-indigo-100 dark:border-indigo-900/50 relative overflow-hidden">
         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
         <div className="text-center pt-2">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 shadow-inner">
             <UserPlus className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Create Account</h2>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Join as a new Customer</p>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Join as a new {role}</p>
         </div>
         
         {error && <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100 dark:bg-red-900/20 dark:border-red-900/50">{error}</div>}
@@ -64,6 +65,18 @@ export const Register = () => {
 
         <form className="mt-8 space-y-6" onSubmit={handleRegister}>
           <div className="space-y-4">
+            <div className="w-full">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Select Role</label>
+              <select 
+                value={role} 
+                onChange={(e) => setRole(e.target.value)}
+                className="flex h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white/50 dark:bg-gray-900/50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 dark:text-white transition-shadow"
+              >
+                <option value="Admin" className="dark:bg-gray-800">Admin</option>
+                <option value="Employee" className="dark:bg-gray-800">Employee (Trader)</option>
+                <option value="Customer" className="dark:bg-gray-800">Customer</option>
+              </select>
+            </div>
             <Input
               label="Full Name"
               placeholder="e.g. Michael Jordan"

@@ -35,11 +35,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Register via backend API
-  const register = async ({ name, email, password }) => {
+  const register = async ({ name, email, password, role, phone, investment }) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiRegister({ name, email, password });
+      const data = await apiRegister({ name, email, password, role, phone, investment });
       return data;
     } catch (err) {
       setError(err.message);
