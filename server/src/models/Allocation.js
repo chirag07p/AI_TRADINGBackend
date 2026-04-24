@@ -6,7 +6,7 @@ const allocationSchema = new mongoose.Schema({
   matchScore: { type: Number, required: true },
   aiExplanation: { type: String },
   allocatedAt: { type: Date, default: Date.now },
-  status: { type: String, enum: ['Active', 'Reassigned', 'Inactive'], default: 'Active' }
+  status: { type: String, enum: ['Proposed', 'Active', 'Reassigned', 'Inactive'], default: 'Active' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Allocation', allocationSchema);

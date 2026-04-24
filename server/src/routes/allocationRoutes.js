@@ -5,14 +5,20 @@ const {
   getTraderAllocations,
   getTriggers,
   reassignClient,
-  allocateOne
+  allocateOne,
+  finalizeProposal,
+  rejectProposal,
+  unassignClient
 } = require('../controllers/allocationController');
 const { protect, admin } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
 router.post('/', protect, admin, allocateAll);
-router.post('/:clientId', protect, admin, allocateOne);
+router.post('/finalize', protect, finalizeProposal);
+router.post('/reject', protect, rejectProposal);
+router.post('/unassign', protect, unassignClient);
+router.post('/:clientId', protect, allocateOne);
 router.get('/', protect, getAllocations);
 router.get('/triggers', protect, admin, getTriggers);
 router.put('/reassign/:clientId', protect, admin, reassignClient);

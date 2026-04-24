@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const { runAutoAllocation, checkReallocations } = require('../services/allocationService');
+const { runAutoAllocation, checkReallocations, runSingleAllocation, finalizeAllocation, rejectAllocation, unassignTrader } = require('../services/allocationService');
 const Allocation = require('../models/Allocation');
 const User = require('../models/User');
 
@@ -11,16 +11,20 @@ const allocateAll = asyncHandler(async (req, res) => {
   res.status(200).json(results);
 });
 
-// @desc    Allocate one specific client
-// @route   POST /api/allocate/:clientId
 const allocateOne = asyncHandler(async (req, res) => {
-  // Logic to allocate one specifically could go here
-  // For the demo, we can just trigger a targeted run
-  res.status(200).json({ message: 'Targeted allocation logic applied' });
+  try {
+    const { clientId } = req.params;
+    console.log(`[AI Match] Triggering allocation for client: ${clientId}`);
+    const result = await runSingleAllocation(clientId);
+    res.status(200).json(result);
+  } catch (err) {
+    console.error(`[AI Match Error]: ${err.message}`);
+    res.status(500);
+    throw err;
+  }
 });
 
 // @desc    Reassign a client manually
-// @route   PUT /api/allocate/reassign/:clientId
 const reassignClient = asyncHandler(async (req, res) => {
   const { clientId } = req.params;
   const { traderId } = req.body;
@@ -28,12 +32,10 @@ const reassignClient = asyncHandler(async (req, res) => {
   const client = await User.findById(clientId);
   if (!client) return res.status(404).json({ message: 'Client not found' });
 
-  // Update old trader load
   if (client.assignedTraderId) {
     await User.findByIdAndUpdate(client.assignedTraderId, { $inc: { currentLoad: -1 } });
   }
 
-  // Update new trader load
   await User.findByIdAndUpdate(traderId, { $inc: { currentLoad: 1 } });
 
   client.assignedTraderId = traderId;
@@ -42,14 +44,11 @@ const reassignClient = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'Client reassigned successfully' });
 });
 
-// @desc    Get allocation triggers (Feature 3)
-// @route   GET /api/allocate/triggers
 const getTriggers = asyncHandler(async (req, res) => {
   const triggers = await checkReallocations();
   res.status(200).json(triggers);
 });
 
-// @desc    Get all current allocations
 const getAllocations = asyncHandler(async (req, res) => {
   const allocations = await Allocation.find({})
     .populate('clientId', 'name email riskAppetite portfolioValue complexity preferredSpecialization')
@@ -57,11 +56,27 @@ const getAllocations = asyncHandler(async (req, res) => {
   res.status(200).json(allocations);
 });
 
-// @desc    Get allocations for a specific trader
 const getTraderAllocations = asyncHandler(async (req, res) => {
   const allocations = await Allocation.find({ traderId: req.params.traderId, status: 'Active' })
     .populate('clientId', 'name email riskAppetite portfolioValue complexity preferredSpecialization');
   res.status(200).json(allocations);
+});
+
+const finalizeProposal = asyncHandler(async (req, res) => {
+  const { allocationId } = req.body;
+  const result = await finalizeAllocation(allocationId);
+  res.status(200).json(result);
+});
+
+const rejectProposal = asyncHandler(async (req, res) => {
+  const { allocationId } = req.body;
+  const result = await rejectAllocation(allocationId);
+  res.status(200).json(result);
+});
+
+const unassignClient = asyncHandler(async (req, res) => {
+  const result = await unassignTrader(req.user._id);
+  res.status(200).json(result);
 });
 
 module.exports = {
@@ -70,5 +85,8 @@ module.exports = {
   reassignClient,
   getTriggers,
   getAllocations,
-  getTraderAllocations
+  getTraderAllocations,
+  finalizeProposal,
+  rejectProposal,
+  unassignClient
 };

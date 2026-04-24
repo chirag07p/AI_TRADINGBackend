@@ -5,16 +5,16 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Ca
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Wallet, Activity, Contact, TrendingUp, DollarSign, Brain, Send, ArrowUpRight, Eye } from 'lucide-react';
+import { Wallet, Activity, Contact, TrendingUp, DollarSign, Brain, Send, ArrowUpRight, Eye, Check, X, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getDashboardSummary, getAIAdvice, sendMessage as sendMessageAPI } from '../../services/api';
+import { getDashboardSummary, getAIAdvice, sendMessage as sendMessageAPI, allocateCustomer, finalizeAllocationProposal, rejectAllocationProposal, unassignCustomerTrader } from '../../services/api';
 
 export const CustomerDashboard = () => {
   const { user } = useAuth();
   const { customers, employees } = useAppData();
   const navigate = useNavigate();
 
-  const customerData = customers.find(c => c.id === user.id) || user;
+  const customerData = customers.find(c => c.id === (user._id || user.id)) || user;
   const assignedTrader = employees.find(e => e.id === customerData.assignedTraderId);
 
   // Backend data
@@ -26,6 +26,9 @@ export const CustomerDashboard = () => {
   const [aiSymbol, setAiSymbol] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
+
+  // Proposed Match State
+  const [proposedMatch, setProposedMatch] = useState(null);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -86,6 +89,60 @@ export const CustomerDashboard = () => {
     }
   };
 
+  const [matchingLoading, setMatchingLoading] = useState(false);
+  const handleAIMatch = async () => {
+    setMatchingLoading(true);
+    try {
+      const targetId = user._id || user.id;
+      const data = await allocateCustomer(user.token, targetId);
+      setProposedMatch(data);
+    } catch (err) {
+      alert(`Matching failed: ${err.message}`);
+    } finally {
+      setMatchingLoading(false);
+    }
+  };
+
+  const [finalizingLoading, setFinalizingLoading] = useState(false);
+  const handleAcceptMatch = async () => {
+    if (!proposedMatch) return;
+    setFinalizingLoading(true);
+    try {
+      await finalizeAllocationProposal(user.token, proposedMatch.allocationId);
+      alert('Partnership established! Redirecting...');
+      window.location.reload();
+    } catch (err) {
+      alert(`Finalization failed: ${err.message}`);
+    } finally {
+      setFinalizingLoading(false);
+    }
+  };
+
+  const handleRejectMatch = async () => {
+    if (!proposedMatch) return;
+    try {
+      await rejectAllocationProposal(user.token, proposedMatch.allocationId);
+      setProposedMatch(null);
+    } catch (err) {
+      alert(`Rejection failed: ${err.message}`);
+    }
+  };
+
+  const [disconnectingLoading, setDisconnectingLoading] = useState(false);
+  const handleDisconnect = async () => {
+    if (!window.confirm("Are you sure you want to disconnect from your current trader?")) return;
+    setDisconnectingLoading(true);
+    try {
+      await unassignCustomerTrader(user.token);
+      alert('Successfully disconnected from your trader.');
+      window.location.reload();
+    } catch (err) {
+      alert(`Disconnect failed: ${err.message}`);
+    } finally {
+      setDisconnectingLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -140,6 +197,129 @@ export const CustomerDashboard = () => {
           {assignedTrader && <p className="text-xs text-gray-400 mt-1">{assignedTrader.experience} · {assignedTrader.specialization}</p>}
         </Card>
       </div>
+
+      {!assignedTrader && !proposedMatch && (
+        <Card className="relative overflow-hidden bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 border-none shadow-2xl p-8 text-white">
+          <div className="absolute top-0 right-0 p-8 opacity-10 animate-pulse">
+            <Brain className="w-32 h-32" />
+          </div>
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="max-w-xl">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="h-2 w-2 rounded-full bg-indigo-400 animate-ping" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-indigo-200">Neural Matching Engine Active</p>
+              </div>
+              <h2 className="text-3xl font-black mb-3">Initialize Your Trading DNA</h2>
+              <p className="text-indigo-100 text-sm leading-relaxed mb-6">
+                Our AI analyzes your risk appetite and financial goals to pair you with a top-tier trader specializing in your preferred asset classes. Start your journey with a data-driven partnership.
+              </p>
+              <Button 
+                onClick={handleAIMatch}
+                disabled={matchingLoading}
+                className="h-12 bg-white text-indigo-900 hover:bg-indigo-50 font-black px-8 shadow-xl shadow-white/10"
+              >
+                {matchingLoading ? (
+                  <span className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 animate-spin" /> ANALYZING NODES...
+                  </span>
+                ) : (
+                  <>
+                    <Brain className="w-4 h-4 mr-2" /> REQUEST AI MATCH
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="hidden lg:block">
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { label: 'Latency', value: '4ms' },
+                  { label: 'Precision', value: '98.4%' },
+                  { label: 'Success', value: '92%' },
+                  { label: 'Nodes', value: '128' }
+                ].map(stat => (
+                  <div key={stat.label} className="bg-white/10 backdrop-blur rounded-2xl p-4 border border-white/10 min-w-[120px]">
+                    <p className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest mb-1">{stat.label}</p>
+                    <p className="text-xl font-black">{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {proposedMatch && (
+        <Card className="relative overflow-hidden border-2 border-indigo-500/50 bg-white dark:bg-gray-900 shadow-2xl p-0 transition-all animate-in zoom-in-95 duration-500">
+          <div className="bg-indigo-600 p-4 flex items-center justify-between text-white">
+            <div className="flex items-center gap-2">
+              <Brain className="w-5 h-5" />
+              <span className="text-sm font-black uppercase tracking-widest">AI Match Discovery</span>
+            </div>
+            <Badge className="bg-white/20 text-white border-none">Match Score: {proposedMatch.matchScore}%</Badge>
+          </div>
+          
+          <div className="p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-20 h-20 rounded-3xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-3xl font-black text-indigo-600">
+                  {proposedMatch.trader.name.charAt(0)}
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-gray-900 dark:text-white">{proposedMatch.trader.name}</h3>
+                  <div className="flex gap-2 mt-1">
+                    <Badge variant="outline" className="text-[10px] uppercase">{proposedMatch.trader.level} Expert</Badge>
+                    <Badge variant="outline" className="text-[10px] uppercase">{proposedMatch.trader.experience} Years Exp.</Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 mb-8">
+                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-800">
+                  <span className="text-xs font-bold text-gray-400 uppercase">Specialization</span>
+                  <span className="text-sm font-black text-indigo-600">{proposedMatch.trader.specialization?.join(', ')}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-800">
+                  <span className="text-xs font-bold text-gray-400 uppercase">Performance</span>
+                  <span className="text-sm font-black text-green-500">{proposedMatch.trader.performanceScore}% Success Rate</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-800">
+                  <span className="text-xs font-bold text-gray-400 uppercase">Current Workload</span>
+                  <span className="text-sm font-black text-gray-600 dark:text-gray-300">{proposedMatch.trader.currentLoad}/{proposedMatch.trader.capacity} Clients</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-3xl p-6 border border-gray-100 dark:border-gray-800 flex flex-col">
+              <div className="flex items-center gap-2 mb-4 text-indigo-600">
+                <Info className="w-4 h-4" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Neural Logic Justification</span>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed italic flex-1">
+                "{proposedMatch.aiExplanation}"
+              </p>
+              
+              <div className="grid grid-cols-2 gap-4 mt-8">
+                <Button 
+                  variant="outline" 
+                  onClick={handleRejectMatch}
+                  className="h-12 border-red-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 font-black"
+                >
+                  <X className="w-4 h-4 mr-2" /> REJECT
+                </Button>
+                <Button 
+                  onClick={handleAcceptMatch}
+                  disabled={finalizingLoading}
+                  className="h-12 bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 font-black"
+                >
+                  {finalizingLoading ? 'FINALIZING...' : (
+                    <><Check className="w-4 h-4 mr-2" /> ACCEPT PARTNER</>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -342,7 +522,7 @@ export const CustomerDashboard = () => {
               </div>
             )}
             
-            <div className="mt-8">
+            <div className="mt-8 space-y-3">
               <Button 
                 variant="outline" 
                 className="w-full h-10 text-[10px] font-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
@@ -350,6 +530,16 @@ export const CustomerDashboard = () => {
               >
                 <Wallet className="w-3.5 h-3.5 mr-2" /> MANAGE WALLET
               </Button>
+              {assignedTrader && (
+                <Button 
+                  variant="outline" 
+                  className="w-full h-10 text-[10px] font-black border-red-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10"
+                  onClick={handleDisconnect}
+                  disabled={disconnectingLoading}
+                >
+                  <X className="w-3.5 h-3.5 mr-2" /> {disconnectingLoading ? 'DISCONNECTING...' : 'DISCONNECT PARTNER'}
+                </Button>
+              )}
             </div>
           </Card>
         </div>

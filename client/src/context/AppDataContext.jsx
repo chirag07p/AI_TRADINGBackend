@@ -5,18 +5,8 @@ const AppDataContext = createContext();
 
 export const AppDataProvider = ({ children }) => {
   const { user } = useAuth();
-  const [employees, setEmployees] = useState([
-    { id: 'emp1', name: 'Alice (Expert)', role: 'Employee', experience: 'Expert', successRate: 92, specialization: 'high-risk' },
-    { id: 'emp2', name: 'Bob (Standard)', role: 'Employee', experience: 'Standard', successRate: 75, specialization: 'low-risk' },
-    { id: 'emp3', name: 'Charlie (Senior)', role: 'Employee', experience: 'Senior', successRate: 85, specialization: 'mixed' }
-  ]);
-
-  const [customers, setCustomers] = useState([
-    { id: 'c1', name: 'John Doe', role: 'Customer', risk: 'High', feedback: 4, assignedTraderId: null, coins: 0 },
-    { id: 'c2', name: 'Jane Smith', role: 'Customer', risk: 'Low', feedback: 5, assignedTraderId: null, coins: 0 },
-    { id: 'c3', name: 'Mike Ross', role: 'Customer', risk: 'Medium', feedback: 2, assignedTraderId: null, coins: 0 },
-    { id: 'c4', name: 'Sarah Lee', role: 'Customer', risk: 'High', feedback: 3, assignedTraderId: null, coins: 0 }
-  ]);
+  const [employees, setEmployees] = useState([]);
+  const [customers, setCustomers] = useState([]);
 
   const [trades, setTrades] = useState([
     { id: 't1', customerId: 'c1', amount: 50, date: '2026-04-10', status: 'Completed', profit: '+12%' }
@@ -91,9 +81,46 @@ export const AppDataProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    const fetchLiveData = async () => {
+      if (!user?.token) return;
+      try {
+        const [empRes, custRes] = await Promise.all([
+          fetch('http://localhost:5000/api/user/employees', { headers: { 'Authorization': `Bearer ${user.token}` } }),
+          fetch('http://localhost:5000/api/user/customers', { headers: { 'Authorization': `Bearer ${user.token}` } })
+        ]);
+
+        if (empRes.ok && custRes.ok) {
+          const empData = await empRes.json();
+          const custData = await custRes.json();
+          
+          setEmployees(empData.map(e => ({
+            id: e._id,
+            name: e.name,
+            role: 'Employee',
+            experience: e.level,
+            successRate: e.performanceScore,
+            specialization: e.specialization?.join(', ') || 'Global Markets',
+            capacity: e.capacity,
+            currentLoad: e.currentLoad
+          })));
+
+          setCustomers(custData.map(c => ({
+            id: c._id,
+            name: c.name,
+            role: 'Customer',
+            risk: c.riskAppetite,
+            assignedTraderId: c.assignedTraderId,
+            portfolioValue: c.portfolioValue
+          })));
+        }
+      } catch (err) {
+        console.warn('Live sync failed:', err);
+      }
+    };
+
+    fetchLiveData();
     simulateAIAssignment();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   const assignCoins = (customerId, amount) => {
     setCustomers(prev => prev.map(c => 

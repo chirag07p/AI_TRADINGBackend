@@ -39,4 +39,14 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { getUserProfile, updateUserProfile };
+const getEmployees = asyncHandler(async (req, res) => {
+  const employees = await User.find({ role: 'Employee' }).select('-password');
+  res.json(employees);
+});
+
+const getCustomers = asyncHandler(async (req, res) => {
+  const customers = await User.find({ role: 'Customer' }).select('-password');
+  res.json(customers);
+});
+
+module.exports = { getUserProfile, updateUserProfile, getEmployees, getCustomers };

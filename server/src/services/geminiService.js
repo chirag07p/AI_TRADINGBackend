@@ -6,10 +6,14 @@ const openrouter = new OpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY
 });
 
-// Helper to load and fill prompt
+// Internal Fail-safe Templates
+const TEMPLATES = {
+  matchExplanation: `Act as a premium financial matching AI. In 1 to 2 concise, highly professional sentences, explain exactly why trader {{traderName}} ({{traderLevel}} expert specializing in {{traderSpec}}) is the optimal strategic partner for client {{clientName}}. The client has a {{risk}} risk appetite and a portfolio of \${{portfolioValue}}. Focus on how their specialization perfectly offsets the client's risk profile. Avoid generic filler.`,
+  riskAnalysis: `Analyze the workload risk for {{traderName}} who is at {{load}}% capacity ({{current}}/{{max}}).`
+};
+
 const getPrompt = (templateName, data) => {
-  const filePath = path.join(__dirname, 'ai', 'prompts', `${templateName}.txt`);
-  let content = fs.readFileSync(filePath, 'utf8');
+  let content = TEMPLATES[templateName] || "";
   Object.keys(data).forEach(key => {
     content = content.replace(new RegExp(`{{${key}}}`, 'g'), data[key]);
   });

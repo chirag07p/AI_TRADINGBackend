@@ -212,3 +212,37 @@ export const checkAPIStatus = async () => {
   const res = await fetch(`${API_URL}/status`);
   return handleResponse(res);
 };
+// ─── AI Matching ───
+export const allocateCustomer = async (token, clientId) => {
+  const res = await fetch(`${API_URL}/allocate/${clientId}`, {
+    method: 'POST',
+    headers: getHeaders(token),
+  });
+  return handleResponse(res);
+};
+
+export const finalizeAllocationProposal = async (token, allocationId) => {
+  const res = await fetch(`${API_URL}/allocate/finalize`, {
+    method: 'POST',
+    headers: getHeaders(token),
+    body: JSON.stringify({ allocationId }),
+  });
+  return handleResponse(res);
+};
+
+export const rejectAllocationProposal = async (token, allocationId) => {
+  const res = await fetch(`${API_URL}/allocate/reject`, {
+    method: 'POST',
+    headers: getHeaders(token),
+    body: JSON.stringify({ allocationId }),
+  });
+  return handleResponse(res);
+};
+
+export const unassignCustomerTrader = async (token) => {
+  const res = await fetch(`${API_URL}/allocate/unassign`, {
+    method: 'POST',
+    headers: getHeaders(token),
+  });
+  return handleResponse(res);
+};

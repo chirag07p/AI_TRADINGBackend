@@ -33,7 +33,7 @@ const runAutoAllocation = async () => {
 
     if (bestTrader) {
       const explanation = await getMatchExplanation(bestTrader, client, highestScore);
-      
+
       const allocation = await Allocation.create({
         clientId: client._id,
         traderId: bestTrader._id,
@@ -63,13 +63,13 @@ const checkReallocations = async () => {
   const activeAllocations = await Allocation.find({ status: 'Active' })
     .populate('clientId')
     .populate('traderId');
-    
+
   const triggers = [];
 
   for (const alloc of activeAllocations) {
     const client = alloc.clientId;
     const trader = alloc.traderId;
-    
+
     if (!client || !trader) continue;
 
     // Trigger: Workload Breach
@@ -109,4 +109,130 @@ const checkReallocations = async () => {
   return triggers;
 };
 
-module.exports = { runAutoAllocation, checkReallocations };
+const runSingleAllocation = async (clientId) => {
+  const client = await User.findById(clientId);
+  if (!client) {
+    throw new Error('Client not found.');
+  }
+
+  const availableTraders = await User.find({ role: 'Employee', isAvailable: true });
+  if (availableTraders.length === 0) {
+    throw new Error('No available traders found at the moment.');
+  }
+
+  let bestTrader = null;
+  let highestScore = -1;
+
+  for (const trader of availableTraders) {
+    if (trader.currentLoad >= trader.capacity) continue;
+
+    let score = calculateMatchScore(trader, client);
+    score -= getWorkloadPenalty(trader);
+    score = Math.max(0, score);
+
+    if (score > highestScore) {
+      highestScore = score;
+      bestTrader = trader;
+    }
+  }
+
+  if (bestTrader) {
+    const explanation = await getMatchExplanation(bestTrader, client, highestScore);
+    
+    // Create a Proposed allocation for review
+    const allocation = await Allocation.create({
+      clientId: client._id,
+      traderId: bestTrader._id,
+      matchScore: highestScore,
+      aiExplanation: explanation,
+      status: 'Proposed'
+    });
+
+    return {
+      allocationId: allocation._id,
+      trader: {
+        id: bestTrader._id,
+        name: bestTrader.name,
+        level: bestTrader.level,
+        experience: bestTrader.experience,
+        specialization: bestTrader.specialization,
+        performanceScore: bestTrader.performanceScore,
+        currentLoad: bestTrader.currentLoad,
+        capacity: bestTrader.capacity
+      },
+      aiExplanation: explanation,
+      matchScore: highestScore
+    };
+  }
+
+  throw new Error('Could not find a suitable match.');
+};
+
+const finalizeAllocation = async (allocationId) => {
+  const allocation = await Allocation.findById(allocationId);
+  if (!allocation || allocation.status !== 'Proposed') {
+    throw new Error('Invalid or expired allocation proposal.');
+  }
+
+  const client = await User.findById(allocation.clientId);
+  const trader = await User.findById(allocation.traderId);
+
+  if (!client || !trader) {
+    throw new Error('Client or Trader not found.');
+  }
+
+  // Handle re-assignment workload balancing
+  if (client.assignedTraderId) {
+    await User.findByIdAndUpdate(client.assignedTraderId, { $inc: { currentLoad: -1 } });
+  }
+
+  // Finalize assignment
+  await User.findByIdAndUpdate(client._id, { assignedTraderId: trader._id });
+  await User.findByIdAndUpdate(trader._id, { $inc: { currentLoad: 1 } });
+
+  allocation.status = 'Active';
+  await allocation.save();
+
+  return { message: 'Trader assignment finalized successfully.' };
+};
+
+const rejectAllocation = async (allocationId) => {
+  const allocation = await Allocation.findById(allocationId);
+  if (allocation) {
+    allocation.status = 'Inactive';
+    await allocation.save();
+  }
+  return { message: 'Allocation proposal rejected.' };
+};
+
+const unassignTrader = async (clientId) => {
+  const client = await User.findById(clientId);
+  if (!client || !client.assignedTraderId) {
+    throw new Error('Client not found or no trader assigned.');
+  }
+
+  const traderId = client.assignedTraderId;
+
+  // Update old trader load
+  await User.findByIdAndUpdate(traderId, { $inc: { currentLoad: -1 } });
+
+  // Unassign client
+  await User.findByIdAndUpdate(clientId, { assignedTraderId: null });
+
+  // Update allocation record
+  await Allocation.updateMany(
+    { clientId: clientId, traderId: traderId, status: 'Active' },
+    { $set: { status: 'Inactive' } }
+  );
+
+  return { message: 'Trader successfully unassigned.' };
+};
+
+module.exports = { 
+  runAutoAllocation, 
+  checkReallocations, 
+  runSingleAllocation,
+  finalizeAllocation,
+  rejectAllocation,
+  unassignTrader
+};
