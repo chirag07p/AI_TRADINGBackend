@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppDataContext';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
@@ -556,9 +557,9 @@ export const CustomerDashboard = () => {
                   <span className="flex h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
                   <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">AI STRATEGY RECOMMENDATION</p>
                 </div>
-                <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed font-medium">
-                  {aiResponse}
-                </p>
+                <div className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed font-medium prose prose-sm dark:prose-invert max-w-none">
+                  <ReactMarkdown>{aiResponse}</ReactMarkdown>
+                </div>
                 <div className="mt-4 flex justify-end">
                   <Button 
                     variant="ghost" 
@@ -690,9 +691,11 @@ export const CustomerDashboard = () => {
                   <p className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-tighter">Match Logic Justification</p>
                 </div>
                 <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
-                  <p className="text-[11px] text-gray-500 dark:text-gray-400 italic leading-relaxed">
-                    "{assignedTrader.name} was selected because their expertise in {assignedTrader.specialization} perfectly offsets your {customerData.risk} risk profile, ensuring a {customerData.matchScore || 92}% strategy alignment."
-                  </p>
+                  <div className="text-[11px] text-gray-500 dark:text-gray-400 italic leading-relaxed prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown>
+                      {`${assignedTrader.name} was selected because their expertise in **${assignedTrader.specialization}** perfectly offsets your **${customerData.risk}** risk profile, ensuring a **${customerData.matchScore || 92}%** strategy alignment.`}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               </div>
             )}

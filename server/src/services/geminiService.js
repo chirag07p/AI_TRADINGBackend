@@ -8,8 +8,8 @@ const openrouter = new OpenRouter({
 
 // Internal Fail-safe Templates
 const TEMPLATES = {
-  matchExplanation: `Act as a premium financial matching AI. In 1 to 2 concise, highly professional sentences, explain exactly why trader {{traderName}} ({{traderLevel}} expert specializing in {{traderSpec}}) is the optimal strategic partner for client {{clientName}}. The client has a {{risk}} risk appetite and a portfolio of \${{portfolioValue}}. Focus on how their specialization perfectly offsets the client's risk profile. Avoid generic filler.`,
-  riskAnalysis: `Analyze the workload risk for {{traderName}} who is at {{load}}% capacity ({{current}}/{{max}}).`
+  matchExplanation: `Act as a premium financial matching AI. Provide a concise, highly professional explanation in Markdown format. Explain exactly why trader {{traderName}} ({{traderLevel}} expert specializing in {{traderSpec}}) is the optimal strategic partner for client {{clientName}}. The client has a {{risk}} risk appetite and a portfolio of \${{portfolioValue}}. Focus on how their specialization perfectly offsets the client's risk profile. Use bolding for key metrics. Do not use quotes around the output.`,
+  riskAnalysis: `Act as a system auditor. Provide a brief analysis in Markdown format regarding the workload risk for {{traderName}} who is at {{load}}% capacity ({{current}}/{{max}}). Use bullet points for risks if any.`
 };
 
 const getPrompt = (templateName, data) => {

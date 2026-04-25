@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Card, CardContent } from '../ui/Card';
 import { AlertTriangle, ChevronRight, UserMinus } from 'lucide-react';
 import { Badge } from '../ui/Badge';
@@ -45,12 +46,15 @@ export const SmartAlertBar = ({ token }) => {
                 <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
                   <AlertTriangle className="w-5 h-5 text-amber-600" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-bold text-gray-900 dark:text-white">{alert.clientName}</p>
                     <Badge variant="warning" className="text-[10px]">{alert.type}</Badge>
                   </div>
-                  <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">Under {alert.currentTrader}: {alert.reason}</p>
+                  <div className="text-xs text-amber-700 dark:text-amber-400 font-medium prose prose-sm max-w-none">
+                    <span className="font-bold">Under {alert.currentTrader}: </span>
+                    <ReactMarkdown className="inline">{alert.reason}</ReactMarkdown>
+                  </div>
                 </div>
               </div>
               <Button size="sm" variant="outline" className="h-8 text-xs border-amber-200 hover:bg-amber-100 dark:border-amber-800">

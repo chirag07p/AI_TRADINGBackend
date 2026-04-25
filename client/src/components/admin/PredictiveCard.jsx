@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Sparkles, TrendingUp } from 'lucide-react';
 import { Card, CardContent } from '../ui/Card';
 
@@ -41,9 +42,9 @@ export const PredictiveCard = ({ token }) => {
           </div>
           <h3 className="text-white font-black uppercase tracking-widest text-xs">✦ System Forecast Warning</h3>
         </div>
-        <p className="text-indigo-50 text-sm font-medium leading-relaxed italic">
-          "{prediction}"
-        </p>
+        <div className="text-indigo-50 text-sm font-medium leading-relaxed prose prose-invert prose-sm max-w-none">
+          <ReactMarkdown>{prediction}</ReactMarkdown>
+        </div>
         <div className="mt-4 flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-indigo-300 animate-pulse" />
           <span className="text-[10px] text-indigo-200 uppercase font-bold tracking-tighter">Forecast Confidence: High</span>

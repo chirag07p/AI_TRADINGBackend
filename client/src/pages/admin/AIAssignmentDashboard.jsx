@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useAppData } from '../../context/AppDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { SmartAlertBar } from '../../components/admin/SmartAlertBar';
@@ -293,10 +294,13 @@ export const AIAssignmentDashboard = () => {
                       )}
                     </div>
                     <div className="mt-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
-                      <p className="text-xs text-indigo-700 dark:text-indigo-300 flex items-start gap-1.5">
+                      <div className="text-xs text-indigo-700 dark:text-indigo-300 flex items-start gap-1.5 prose prose-sm dark:prose-invert max-w-none">
                         <Zap className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-indigo-500" />
-                        <span className="font-semibold">Match Reasoning:</span> {customer.aiExplanation || RISK_LOGIC[customer.risk]?.reason}
-                      </p>
+                        <div className="flex-1">
+                          <span className="font-semibold">Match Reasoning:</span> 
+                          <ReactMarkdown className="inline-block ml-1">{customer.aiExplanation || RISK_LOGIC[customer.risk]?.reason}</ReactMarkdown>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
