@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const Portfolio = require('../models/Portfolio');
 const Trade = require('../models/Trade');
 const User = require('../models/User');
+const Trader = require('../models/Trader');
 const { checkReallocations } = require('../services/allocationService');
 const { getPredictiveAnalysis } = require('../services/predictiveService');
 
@@ -38,7 +39,7 @@ const getDashboardSummary = asyncHandler(async (req, res) => {
   if (req.user.role === 'Admin') {
     alerts = await checkReallocations();
     const allCustomers = await User.find({ role: 'Customer' });
-    const allEmployees = await User.find({ role: 'Employee' });
+    const allEmployees = await Trader.find({});
     prediction = await getPredictiveAnalysis(allCustomers, allEmployees);
   }
 

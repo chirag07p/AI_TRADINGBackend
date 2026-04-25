@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
+const Trader = require('../models/Trader');
 
 // @desc    Get current user profile
 // @route   GET /api/user/profile
@@ -25,6 +26,10 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 
   user.name = req.body.name || user.name;
   user.email = req.body.email || user.email;
+  user.phone = req.body.phone || user.phone;
+  user.riskAppetite = req.body.riskAppetite || user.riskAppetite;
+  user.preferredSpecialization = req.body.preferredSpecialization || user.preferredSpecialization;
+  user.complexity = req.body.complexity || user.complexity;
 
   if (req.body.password) {
     user.password = req.body.password;
@@ -40,7 +45,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 });
 
 const getEmployees = asyncHandler(async (req, res) => {
-  const employees = await User.find({ role: 'Employee' }).select('-password');
+  const employees = await Trader.find({});
   res.json(employees);
 });
 

@@ -4,13 +4,15 @@ import { AlertTriangle, ChevronRight, UserMinus } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 
+import { API_URL } from '../../services/api';
+
 export const SmartAlertBar = ({ token }) => {
   const [triggers, setTriggers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchTriggers = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/allocate/triggers', {
+      const res = await fetch(`${API_URL}/allocate/triggers`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();

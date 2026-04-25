@@ -3,6 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Ca
 import { Badge } from '../../components/ui/Badge';
 import { TrendingUp, TrendingDown, BarChart3, Globe, Zap, Shield, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { API_URL } from '../../services/api';
 
 export const MarketAnalytics = () => {
   const { user } = useAuth();
@@ -11,7 +12,7 @@ export const MarketAnalytics = () => {
 
   const fetchMarketData = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/system/market', {
+      const res = await fetch(`${API_URL}/system/market`, {
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
       const data = await res.json();

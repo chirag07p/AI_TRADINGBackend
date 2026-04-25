@@ -13,7 +13,7 @@ graph TD
     API --> |Neural Scoring| AE[AI Allocation Engine]
     API --> |Market Ticks| MS[Market Simulation Service]
     AE --> |Data Persistence| DB[(MongoDB Atlas)]
-    API --> |Strategy Request| NV[Gemini-API Model API Key]
+    API --> |Strategy Request| NV[AI Strategy Service]
     NV --> |Real-time Advice| UI
 ```
 
@@ -23,7 +23,7 @@ graph TD
 
 ### 🖥️ 1. Customer Intelligence Portal
 The primary interface for retail investors, designed for high-end usability and rapid decision support.
-- **AI Strategy Advisor**: Real-time integration with **NVIDIA's Nemotron-3 (120B)**. Receive complex market analysis, "Buy/Hold/Sell" recommendations, and risk-adjusted entry strategies.
+- **AI Strategy Advisor**: Real-time integration with a **Proprietary Neural Engine**. Receive complex market analysis, "Buy/Hold/Sell" recommendations, and risk-adjusted entry strategies.
 - **Paper Trading Engine**: Execute orders on a zero-risk simulated market. Track your net worth, available liquidity, and profit margins through a glassmorphic command center.
 - **Dynamic Profile DNA**: Customers define their risk appetite and financial goals, which are used as vector inputs for the platform's trader-matching logic.
 - **Instant Service Feedback**: Rate your assigned trader's performance (1-5 stars). The system uses this feedback to re-calculate trader "Success Scores" in real-time.
@@ -68,7 +68,7 @@ AllocateIQ departs from traditional flat web designs by utilizing:
 - **Concurrently**: Unified development lifecycle management.
 
 ### AI Node
-- **NVIDIA Nemotron-3**: High-parameter LLM (120B) via OpenRouter for context-aware strategy generation.
+- **Proprietary Neural Engine**: High-parameter LLM integration via OpenRouter for context-aware strategy generation and trader matching.
 
 ---
 
@@ -81,7 +81,7 @@ PORT=5000
 NODE_ENV=development
 DB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
-OPENROUTER_API_KEY=your_nvidia_api_key
+OPENROUTER_API_KEY=your_openrouter_api_key
 ```
 
 ### 2. Rapid Installation
@@ -100,7 +100,6 @@ npm run dev
 
 ## 🗺️ Roadmap
 - [ ] **Live Payout Integration**: Integration with Stripe for real-money commissions.
-- [ ] **Multi-Model Strategy Advisor**: Allow users to choose between NVIDIA, GPT-4, and Claude.
 - [ ] **Mobile Trading App**: React Native port for on-the-go allocation management.
 - [ ] **Vector Search for Matching**: Upgrade the AI engine to use Pinecone/Milvus for even more precise trader-customer pairing.
 

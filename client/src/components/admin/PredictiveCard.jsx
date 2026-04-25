@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Brain, Sparkles, TrendingUp } from 'lucide-react';
 import { Card, CardContent } from '../ui/Card';
 
+import { API_URL } from '../../services/api';
+
 export const PredictiveCard = ({ token }) => {
   const [prediction, setPrediction] = useState('');
   const [loading, setLoading] = useState(true);
@@ -9,7 +11,7 @@ export const PredictiveCard = ({ token }) => {
   useEffect(() => {
     const fetchPrediction = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/dashboard/summary', {
+        const res = await fetch(`${API_URL}/dashboard/summary`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();

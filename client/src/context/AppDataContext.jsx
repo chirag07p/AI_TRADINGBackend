@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import { API_URL } from '../services/api';
 
 const AppDataContext = createContext();
 
@@ -15,12 +16,12 @@ export const AppDataProvider = ({ children }) => {
   // Weighted scoring matching engine
   const calculateMatchScore = (trader, client) => {
     let score = 0;
-    const expMap = { 'Expert': 30, 'Senior': 20, 'Standard': 10, 'Junior': 5 };
-    if (client.risk === 'High') score += expMap[trader.experience] || 0;
-    else if (client.risk === 'Medium') score += (trader.experience === 'Senior' ? 30 : 15);
-    else score += (trader.experience === 'Junior' ? 30 : 10);
+    const expMap = { 'Expert': 30, 'Senior': 20, 'Mid': 10, 'Junior': 5 };
+    if (client.risk === 'High') score += expMap[trader.level] || 0;
+    else if (client.risk === 'Medium') score += (trader.level === 'Senior' ? 30 : 15);
+    else score += (trader.level === 'Junior' ? 30 : 10);
 
-    if (trader.specialization === client.risk.toLowerCase() || trader.specialization === 'mixed') score += 25;
+    if (trader.specialization?.toLowerCase().includes(client.risk.toLowerCase()) || trader.specialization?.toLowerCase().includes('mixed')) score += 25;
     score += (trader.successRate / 100) * 25;
 
     const assignedCount = customers.filter(c => c.assignedTraderId === trader.id).length;
@@ -33,7 +34,7 @@ export const AppDataProvider = ({ children }) => {
   const simulateAIAssignment = async () => {
     if (user?.token && user?.role === 'Admin') {
       try {
-        const response = await fetch('http://localhost:5000/api/allocate', {
+        const response = await fetch(`${API_URL}/allocate`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -85,8 +86,8 @@ export const AppDataProvider = ({ children }) => {
       if (!user?.token) return;
       try {
         const [empRes, custRes] = await Promise.all([
-          fetch('http://localhost:5000/api/user/employees', { headers: { 'Authorization': `Bearer ${user.token}` } }),
-          fetch('http://localhost:5000/api/user/customers', { headers: { 'Authorization': `Bearer ${user.token}` } })
+          fetch(`${API_URL}/user/employees`, { headers: { 'Authorization': `Bearer ${user.token}` } }),
+          fetch(`${API_URL}/user/customers`, { headers: { 'Authorization': `Bearer ${user.token}` } })
         ]);
 
         if (empRes.ok && custRes.ok) {
@@ -97,7 +98,8 @@ export const AppDataProvider = ({ children }) => {
             id: e._id,
             name: e.name,
             role: 'Employee',
-            experience: e.level,
+            level: e.level,
+            experience: `${e.experience} Years`,
             successRate: e.performanceScore,
             specialization: e.specialization?.join(', ') || 'Global Markets',
             capacity: e.capacity,

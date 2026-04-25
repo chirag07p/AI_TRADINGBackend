@@ -5,9 +5,9 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Ca
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Wallet, Activity, Contact, TrendingUp, DollarSign, Brain, Send, ArrowUpRight, Eye, Check, X, Info } from 'lucide-react';
+import { Wallet, Activity, Contact, TrendingUp, DollarSign, Brain, Send, ArrowUpRight, Eye, Check, X, Info, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getDashboardSummary, getAIAdvice, sendMessage as sendMessageAPI, allocateCustomer, finalizeAllocationProposal, rejectAllocationProposal, unassignCustomerTrader } from '../../services/api';
+import { getDashboardSummary, getAIAdvice, sendMessage as sendMessageAPI, allocateCustomer, finalizeAllocationProposal, rejectAllocationProposal, unassignCustomerTrader, updateUserProfile } from '../../services/api';
 
 export const CustomerDashboard = () => {
   const { user } = useAuth();
@@ -29,6 +29,16 @@ export const CustomerDashboard = () => {
 
   // Proposed Match State
   const [proposedMatch, setProposedMatch] = useState(null);
+  const [showRejectionFollowUp, setShowRejectionFollowUp] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
+  
+  // Requirements Form State
+  const [showRequirementsForm, setShowRequirementsForm] = useState(false);
+  const [requirements, setRequirements] = useState({
+    riskAppetite: 'Medium',
+    preferredSpecialization: 'Equity',
+    complexity: 5
+  });
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -90,9 +100,22 @@ export const CustomerDashboard = () => {
   };
 
   const [matchingLoading, setMatchingLoading] = useState(false);
+  const handleStartMatchWorkflow = () => {
+    setShowRequirementsForm(true);
+  };
+
   const handleAIMatch = async () => {
     setMatchingLoading(true);
+    setShowRequirementsForm(false);
     try {
+      // 1. Update user profile with fresh requirements
+      await updateUserProfile(user.token, {
+        riskAppetite: requirements.riskAppetite,
+        preferredSpecialization: requirements.preferredSpecialization,
+        complexity: requirements.complexity
+      });
+
+      // 2. Trigger AI allocation
       const targetId = user._id || user.id;
       const data = await allocateCustomer(user.token, targetId);
       setProposedMatch(data);
@@ -122,10 +145,17 @@ export const CustomerDashboard = () => {
     if (!proposedMatch) return;
     try {
       await rejectAllocationProposal(user.token, proposedMatch.allocationId);
+      setShowRejectionFollowUp(true);
       setProposedMatch(null);
     } catch (err) {
       alert(`Rejection failed: ${err.message}`);
     }
+  };
+
+  const handleFollowUpSubmit = () => {
+    setShowRejectionFollowUp(false);
+    // Instead of auto-matching, let user refine requirements based on their rejection reason
+    setShowRequirementsForm(true);
   };
 
   const [disconnectingLoading, setDisconnectingLoading] = useState(false);
@@ -214,7 +244,7 @@ export const CustomerDashboard = () => {
                 Our AI analyzes your risk appetite and financial goals to pair you with a top-tier trader specializing in your preferred asset classes. Start your journey with a data-driven partnership.
               </p>
               <Button 
-                onClick={handleAIMatch}
+                onClick={handleStartMatchWorkflow}
                 disabled={matchingLoading}
                 className="h-12 bg-white text-indigo-900 hover:bg-indigo-50 font-black px-8 shadow-xl shadow-white/10"
               >
@@ -321,6 +351,151 @@ export const CustomerDashboard = () => {
         </Card>
       )}
 
+      {showRequirementsForm && (
+        <Card className="p-8 border-none bg-white dark:bg-gray-900 shadow-2xl animate-in fade-in zoom-in-95 duration-500">
+          <div className="max-w-2xl mx-auto">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30">
+                <Target className="w-6 h-6 text-indigo-600" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Define Your Strategy</h3>
+                <p className="text-sm text-gray-500">Customize these parameters to refine your neural match</p>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              {/* Risk Appetite */}
+              <div>
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Risk Tolerance</label>
+                <div className="grid grid-cols-3 gap-4">
+                  {['Low', 'Medium', 'High'].map(risk => (
+                    <button
+                      key={risk}
+                      onClick={() => setRequirements(r => ({ ...r, riskAppetite: risk }))}
+                      className={`h-14 rounded-2xl border-2 transition-all font-bold ${
+                        requirements.riskAppetite === risk 
+                          ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400' 
+                          : 'border-gray-100 text-gray-400 hover:border-gray-200 dark:border-gray-800'
+                      }`}
+                    >
+                      {risk}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Specialization */}
+              <div>
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Market Focus</label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {['Equity', 'Forex', 'Crypto', 'Commodities'].map(spec => (
+                    <button
+                      key={spec}
+                      onClick={() => setRequirements(r => ({ ...r, preferredSpecialization: spec }))}
+                      className={`h-12 rounded-xl border-2 transition-all text-xs font-bold ${
+                        requirements.preferredSpecialization === spec 
+                          ? 'border-purple-600 bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400' 
+                          : 'border-gray-100 text-gray-400 hover:border-gray-200 dark:border-gray-800'
+                      }`}
+                    >
+                      {spec}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Complexity */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Strategy Complexity</label>
+                  <span className="text-sm font-black text-indigo-600">{requirements.complexity}/10</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="1" 
+                  max="10" 
+                  value={requirements.complexity}
+                  onChange={(e) => setRequirements(r => ({ ...r, complexity: parseInt(e.target.value) }))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 dark:bg-gray-700"
+                />
+                <div className="flex justify-between mt-2 text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                  <span>Conservative</span>
+                  <span>Institutional</span>
+                </div>
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <Button 
+                  onClick={handleAIMatch}
+                  className="flex-1 h-14 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-xl shadow-indigo-600/20"
+                >
+                  <Brain className="w-5 h-5 mr-2" /> GENERATE NEURAL MATCH
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setShowRequirementsForm(false)}
+                  className="h-14 px-8 font-bold text-gray-400"
+                >
+                  CANCEL
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {showRejectionFollowUp && (
+        <Card className="p-8 border-2 border-dashed border-indigo-200 dark:border-indigo-900/50 bg-indigo-50/20 dark:bg-indigo-900/10 animate-in fade-in zoom-in-95 duration-500">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-full">
+              <Info className="w-12 h-12 text-indigo-600" />
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Help Us Refine Your Match</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                Your feedback helps our Neural Engine understand your preferences better. Why wasn't this trader the right fit?
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+                {[
+                  'Risk Profile Mismatch',
+                  'Specialization Mismatch',
+                  'Strategy Complexity Issues',
+                  'Experience Level',
+                  'Other'
+                ].map(reason => (
+                  <Button
+                    key={reason}
+                    variant={rejectionReason === reason ? 'default' : 'outline'}
+                    onClick={() => setRejectionReason(reason)}
+                    className="h-10 text-xs font-bold uppercase tracking-widest"
+                  >
+                    {reason}
+                  </Button>
+                ))}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                <Button 
+                  onClick={handleFollowUpSubmit}
+                  className="h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-black px-8"
+                >
+                  SUBMIT FEEDBACK & RE-INITIATE
+                </Button>
+                <Button 
+                  variant="ghost"
+                  onClick={() => setShowRejectionFollowUp(false)}
+                  className="h-12 text-gray-400 hover:text-gray-600 font-bold"
+                >
+                  SKIP FOR NOW
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
@@ -335,7 +510,7 @@ export const CustomerDashboard = () => {
               </div>
               <div>
                 <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">AI Strategy Advisor</h3>
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Powered by NVIDIA Nemotron-3</p>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Powered by Neural Engine</p>
               </div>
             </div>
 
@@ -379,7 +554,7 @@ export const CustomerDashboard = () => {
               <div className="mt-6 p-4 bg-indigo-50/30 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100/50 dark:border-indigo-900/30 animate-in fade-in slide-in-from-top-4 duration-500">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="flex h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
-                  <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">NVIDIA AI RECOMMENDATION</p>
+                  <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">AI STRATEGY RECOMMENDATION</p>
                 </div>
                 <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed font-medium">
                   {aiResponse}

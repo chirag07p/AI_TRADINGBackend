@@ -8,7 +8,9 @@ export const Button = ({ className, variant = 'primary', size = 'md', children, 
     primary: "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-600",
     secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-500 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700",
     danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-600",
-    ghost: "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+    ghost: "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
+    outline: "border border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-gray-900",
+    default: "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-600"
   };
 
   const sizes = {

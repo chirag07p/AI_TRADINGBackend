@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   riskAppetite: { type: String, enum: ['Low', 'Medium', 'High'], default: 'Medium' },
   complexity: { type: Number, default: 1 }, // 1-10
   preferredSpecialization: { type: String, default: 'Equity' },
-  assignedTraderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
+  assignedTraderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Trader', default: null }
 }, { timestamps: true });
 
 userSchema.pre('save', async function() {

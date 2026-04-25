@@ -64,7 +64,7 @@ export const EmployeeDashboard = () => {
       const advice = await getAIAdvice(aiQuery, 'MARKET');
       setAiResponse(advice);
     } catch (err) {
-      setAiResponse("AI Service unreachable. Please check NVIDIA API connection.");
+      setAiResponse("AI Service unreachable. Please check backend API connection.");
     } finally {
       setAiLoading(false);
     }
@@ -126,7 +126,7 @@ export const EmployeeDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* 3. AI TRADER COPILOT (NVIDIA POWERED) */}
+        {/* 3. AI TRADER COPILOT */}
         <div className="lg:col-span-2 space-y-6">
           <Card className="p-6 border-indigo-100 dark:border-indigo-900/30 bg-gradient-to-br from-white to-indigo-50/20 dark:from-gray-900 dark:to-indigo-950/10 shadow-sm overflow-hidden relative">
             <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
@@ -139,7 +139,7 @@ export const EmployeeDashboard = () => {
               </div>
               <div>
                 <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">AI Trader Copilot</h3>
-                <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-tighter">NVIDIA Nemotron-3 Intelligence</p>
+                <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-tighter">Neural Intelligence Engine</p>
               </div>
             </div>
 

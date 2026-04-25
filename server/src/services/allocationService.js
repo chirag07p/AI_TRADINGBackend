@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Trader = require('../models/Trader');
 const Allocation = require('../models/Allocation');
 const { getMatchExplanation } = require('./geminiService');
 const { calculateMatchScore } = require('./scoringService');
@@ -6,7 +7,7 @@ const { getWorkloadPenalty, isOverloaded } = require('./workloadService');
 
 const runAutoAllocation = async () => {
   const unassignedClients = await User.find({ role: 'Customer', assignedTraderId: null });
-  const availableTraders = await User.find({ role: 'Employee', isAvailable: true });
+  const availableTraders = await Trader.find({ isAvailable: true });
 
   if (unassignedClients.length === 0 || availableTraders.length === 0) {
     return { message: 'No unassigned clients or available traders found.' };
@@ -115,7 +116,7 @@ const runSingleAllocation = async (clientId) => {
     throw new Error('Client not found.');
   }
 
-  const availableTraders = await User.find({ role: 'Employee', isAvailable: true });
+  const availableTraders = await Trader.find({ isAvailable: true });
   if (availableTraders.length === 0) {
     throw new Error('No available traders found at the moment.');
   }
@@ -175,7 +176,7 @@ const finalizeAllocation = async (allocationId) => {
   }
 
   const client = await User.findById(allocation.clientId);
-  const trader = await User.findById(allocation.traderId);
+  const trader = await Trader.findById(allocation.traderId);
 
   if (!client || !trader) {
     throw new Error('Client or Trader not found.');
@@ -188,7 +189,7 @@ const finalizeAllocation = async (allocationId) => {
 
   // Finalize assignment
   await User.findByIdAndUpdate(client._id, { assignedTraderId: trader._id });
-  await User.findByIdAndUpdate(trader._id, { $inc: { currentLoad: 1 } });
+  await Trader.findByIdAndUpdate(trader._id, { $inc: { currentLoad: 1 } });
 
   allocation.status = 'Active';
   await allocation.save();
@@ -214,7 +215,7 @@ const unassignTrader = async (clientId) => {
   const traderId = client.assignedTraderId;
 
   // Update old trader load
-  await User.findByIdAndUpdate(traderId, { $inc: { currentLoad: -1 } });
+  await Trader.findByIdAndUpdate(traderId, { $inc: { currentLoad: -1 } });
 
   // Unassign client
   await User.findByIdAndUpdate(clientId, { assignedTraderId: null });
