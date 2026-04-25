@@ -1,6 +1,6 @@
-# AllocateIQ - Advanced AI Trading Ecosystem
+# AllocateIQ - Advanced System Trading Ecosystem
 
-AllocateIQ is an enterprise-grade, full-stack trading and allocation platform. It bridges the gap between retail investors and professional trading expertise by leveraging a neural matching engine and real-time AI advisory nodes.
+AllocateIQ is an enterprise-grade, full-stack trading and allocation platform. It bridges the gap between retail investors and professional trading expertise by leveraging a proprietary **System Engine** and real-time AI advisory nodes.
 
 ---
 
@@ -10,11 +10,17 @@ AllocateIQ is an enterprise-grade, full-stack trading and allocation platform. I
 graph TD
     User((User Roles)) --> |React + Vite| UI[Premium UI Layer]
     UI --> |JWT Auth| API[Express API Gateway]
-    API --> |Neural Scoring| AE[AI Allocation Engine]
+    API --> |Scoring Logic| AE[System Allocation Engine]
     API --> |Market Ticks| MS[Market Simulation Service]
-    AE --> |Data Persistence| DB[(MongoDB Atlas)]
+    
+    subgraph Data Layer
+        AE --> DB_C[(Customers Collection)]
+        AE --> DB_T[(Traders Collection)]
+        AE --> DB_A[(Admins Collection)]
+    end
+    
     API --> |Strategy Request| NV[AI Strategy Service]
-    NV --> |Real-time Advice| UI
+    NV --> |Markdown Advice| UI
 ```
 
 ---
@@ -23,52 +29,51 @@ graph TD
 
 ### 🖥️ 1. Customer Intelligence Portal
 The primary interface for retail investors, designed for high-end usability and rapid decision support.
-- **AI Strategy Advisor**: Real-time integration with a **Proprietary Neural Engine**. Receive complex market analysis, "Buy/Hold/Sell" recommendations, and risk-adjusted entry strategies.
-- **Paper Trading Engine**: Execute orders on a zero-risk simulated market. Track your net worth, available liquidity, and profit margins through a glassmorphic command center.
-- **Dynamic Profile DNA**: Customers define their risk appetite and financial goals, which are used as vector inputs for the platform's trader-matching logic.
-- **Instant Service Feedback**: Rate your assigned trader's performance (1-5 stars). The system uses this feedback to re-calculate trader "Success Scores" in real-time.
+- **AI Strategy Advisor**: Real-time integration with a **Proprietary System Engine**. Receive complex market analysis and strategy recommendations in rich **Markdown** format.
+- **Paper Trading Engine**: Execute orders on a zero-risk simulated market. Track your net worth and profit margins through a glassmorphic command center.
+- **Dynamic Profile DNA**: Customers define their Risk Appetite, Market Specialization, and Complexity requirements, which drive the matching logic.
+- **Instant Service Feedback**: Rate your assigned trader's performance. The system uses this feedback to re-calculate trader "Success Scores" in real-time.
 
 ### 🧑‍💼 2. Professional Trader (Employee) Suite
 A high-density terminal for professionals to manage their assigned client portfolios.
-- **Global Market Intelligence**: A live feed of assets (BTC, ETH, Stocks) with simulated price action updated via a dedicated backend ticker service.
-- **Performance Analytics**: Track personal growth via automated success-rate metrics, avg customer satisfaction, and platform-wide ranking.
-- **Execution History**: A detailed audit of all trades performed for every client, featuring advanced filtering and profit/loss analysis.
-- **Workload Management**: Automated indicators showing the trader's current client load vs. maximum capacity.
+- **Client DNA Visibility**: View detailed strategy requirements for assigned clients to provide tailored trading support.
+- **Performance Analytics**: Track growth via automated success-rate metrics and platform-wide ranking.
+- **Execution History**: A detailed audit of all trades performed for every client, featuring advanced filtering and P/L analysis.
+- **Workload Management**: Automated indicators showing current client load vs. maximum capacity (System-enforced limits).
 
 ### 🏛️ 3. Admin Command & Control
 Total oversight of the ecosystem's health and security.
-- **AI Assignment Dashboard**: Monitor the neural engine as it pairs "High Risk" clients with "Expert" traders. Manual overrides and engine reruns available with one click.
-- **Platform Health & Logs**: A live terminal console tracking every INFO, WARN, and ERROR event across the API and Database clusters.
-- **Immutable Security Audit**: Every administrative action (weight changes, user deletions, role upgrades) is logged in a secure, immutable audit trail.
-- **Global Settings Control**: Adjust the platform's core physics—change AI allocation intervals, success-rate thresholds, and security compliance rules.
+- **System Assignment Engine**: Monitor the engine as it pairs "High Risk" clients with "Expert" traders. Manual overrides and "Dismiss" authority are built-in.
+- **Live Global Trades**: A real-time feed of all operations happening across the platform for total transparency.
+- **Split Collection Security**: Data is physically segregated into `admins`, `customers`, and `traders` collections for enhanced security and scalability.
+- **Global Settings Control**: Adjust the platform's core physics—change allocation intervals, success-rate thresholds, and security compliance rules.
 
 ---
 
-## 🎨 Design System: "Premium App-First"
-AllocateIQ departs from traditional flat web designs by utilizing:
-- **Unified Sidebar Navigation**: A single collapsible rail for both public and private routes, ensuring a focused workspace.
-- **Glassmorphism**: High-blur backdrops, subtle gradients, and translucent borders (CSS `backdrop-blur`).
-- **Interactive Micro-animations**: State-aware hover effects, pulse indicators for "Live" data, and smooth transition-timing functions.
-- **Dark-Mode Optimized**: A curated HSL color palette designed for high-contrast visibility in trading environments.
+## 🎨 Design System: "Proprietary & Premium"
+AllocateIQ utilizes a custom-built design system characterized by:
+- **Zap Branding**: High-energy, professional aesthetic centered around the "Zap" (System) identity.
+- **Glassmorphism**: High-blur backdrops, subtle gradients, and translucent borders.
+- **Rich Markdown AI**: AI outputs are rendered as beautiful, formatted documents rather than simple text strings.
+- **Dark-Mode Optimized**: A curated HSL color palette designed for high-contrast visibility.
 
 ---
 
 ## 🔒 Security & Tech Stack
 
 ### Frontend
-- **React 18**: Component-based architecture with context-driven state management.
-- **Vite**: Ultra-fast HMR and build pipelines.
+- **React 19**: Modern component architecture with concurrent rendering support.
+- **React Markdown**: Renders rich, formatted AI match reasoning and strategy advice.
 - **Lucide Icons**: Consistent, high-fidelity iconography.
-- **Tailwind CSS**: Utility-first styling with custom animation extensions.
+- **Tailwind CSS**: Utility-first styling with custom glassmorphic extensions.
 
 ### Backend
-- **Node.js & Express**: Scalable RESTful architecture.
-- **MongoDB + Mongoose**: Document-oriented data modeling with strict schema validation.
-- **JWT + Bcrypt**: Secure token-based auth with salted password hashing.
-- **Concurrently**: Unified development lifecycle management.
+- **Node.js & Express**: Scalable RESTful architecture with unified error handling.
+- **Multi-Collection MongoDB**: Scalable data model with segregated `admins`, `customers`, and `traders` collections.
+- **JWT + Bcrypt**: Secure token-based auth with cross-collection identity verification.
 
-### AI Node
-- **Proprietary Neural Engine**: High-parameter LLM integration via OpenRouter for context-aware strategy generation and trader matching.
+### AI Engine
+- **System Engine**: High-parameter LLM integration via OpenRouter, delivering structured, context-aware financial strategy in Markdown.
 
 ---
 
@@ -79,12 +84,12 @@ Create a `.env` file in the `server/` directory:
 ```env
 PORT=5000
 NODE_ENV=development
-DB_URI=your_mongodb_connection_string
+DB_URI=your_mongodb_atlas_uri
 JWT_SECRET=your_jwt_secret
 OPENROUTER_API_KEY=your_openrouter_api_key
 ```
 
-### 2. Rapid Installation
+### 2. Installation
 ```bash
 # From the root directory
 npm install
@@ -95,13 +100,6 @@ npm install
 # Start both Frontend and Backend concurrently
 npm run dev
 ```
-
----
-
-## 🗺️ Roadmap
-- [ ] **Live Payout Integration**: Integration with Stripe for real-money commissions.
-- [ ] **Mobile Trading App**: React Native port for on-the-go allocation management.
-- [ ] **Vector Search for Matching**: Upgrade the AI engine to use Pinecone/Milvus for even more precise trader-customer pairing.
 
 ---
 
