@@ -1,6 +1,6 @@
-# AllocateIQ - Advanced System Trading Ecosystem
+# Trade AI - Advanced System Trading Ecosystem
 
-AllocateIQ is an enterprise-grade, full-stack trading and allocation platform. It bridges the gap between retail investors and professional trading expertise by leveraging a proprietary **System Engine** and real-time AI advisory nodes.
+Trade AI is an enterprise-grade, full-stack trading and allocation platform. It bridges the gap between retail investors and professional trading expertise by leveraging a proprietary **System Engine** and real-time AI advisory nodes.
 
 ---
 
@@ -51,7 +51,7 @@ Total oversight of the ecosystem's health and security.
 ---
 
 ## 🎨 Design System: "Proprietary & Premium"
-AllocateIQ utilizes a custom-built design system characterized by:
+Trade AI utilizes a custom-built design system characterized by:
 - **Zap Branding**: High-energy, professional aesthetic centered around the "Zap" (System) identity.
 - **Glassmorphism**: High-blur backdrops, subtle gradients, and translucent borders.
 - **Rich Markdown AI**: AI outputs are rendered as beautiful, formatted documents rather than simple text strings.

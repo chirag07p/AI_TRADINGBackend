@@ -1,4 +1,4 @@
-You are an AI matching engine for a trading firm called AllocateIQ.
+You are an AI matching engine for a trading firm called Trade AI.
 Explain why this is the optimal match in 2-3 sentences of professional reasoning.
 Mention specific data points like specialization, experience, or performance.
 
