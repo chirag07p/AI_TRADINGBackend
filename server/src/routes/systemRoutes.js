@@ -5,8 +5,8 @@ const { getIntelligenceStream } = require('../controllers/intelligenceController
 const { protect, admin } = require('../middlewares/authMiddleware');
 
 router.get('/intelligence', getIntelligenceStream); // Public
-router.get('/market', protect, getMarketData);
-router.get('/performance', protect, getTraderStats);
+router.get('/market', getMarketData); // Public simulated data
+router.get('/performance', getTraderStats); // Public simulated data
 router.get('/logs', protect, admin, getSystemLogs);
 router.get('/audit', protect, admin, getAuditTrail);
 

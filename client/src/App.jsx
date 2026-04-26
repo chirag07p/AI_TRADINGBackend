@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { cn } from './components/ui/Card';
 import { AppDataProvider } from './context/AppDataContext';
+import { LayoutProvider, useLayout } from './context/LayoutContext';
 import { Navbar } from './components/layout/Navbar';
 import { Sidebar } from './components/layout/Sidebar';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
@@ -43,13 +44,18 @@ import { Wallet } from './pages/customer/Wallet';
 import { TradeHistory } from './pages/customer/TradeHistory';
 
 const AppLayout = ({ children }) => {
-  const { user } = useAuth();
+  const { isSidebarCollapsed } = useLayout();
   return (
     <div className="min-h-screen w-full bg-gray-50 dark:bg-gray-950 transition-colors">
       <Navbar />
       <Sidebar />
-      <main className="w-full transition-all duration-300 pl-20 md:pl-24 lg:pl-64">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main 
+        className={cn(
+          "w-full transition-all duration-300",
+          isSidebarCollapsed ? "pl-20" : "pl-64"
+        )}
+      >
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10">
           {children}
         </div>
       </main>
@@ -62,8 +68,9 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <AppDataProvider>
-          <BrowserRouter>
-            <AppLayout>
+          <LayoutProvider>
+            <BrowserRouter>
+              <AppLayout>
               <Routes>
                 {/* Public */}
                 <Route path="/" element={<Home />} />
@@ -108,7 +115,8 @@ function App() {
               </Routes>
             </AppLayout>
           </BrowserRouter>
-        </AppDataProvider>
+        </LayoutProvider>
+      </AppDataProvider>
       </AuthProvider>
     </ThemeProvider>
   );

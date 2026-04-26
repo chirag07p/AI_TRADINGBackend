@@ -10,7 +10,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import {
   Zap, Cpu, Database, Activity, RefreshCw,
-  ArrowRight, CheckCircle, AlertTriangle, Shield, Star, Users
+  ArrowRight, CheckCircle, AlertTriangle, Shield, Star, Users, X
 } from 'lucide-react';
 
 const RISK_LOGIC = {
@@ -192,7 +192,7 @@ export const AIAssignmentDashboard = () => {
                   {/* Client */}
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className={`w-11 h-11 rounded-2xl bg-${color}-100 dark:bg-${color}-500/20 flex items-center justify-center text-${color}-700 dark:text-${color}-400 font-black text-lg flex-shrink-0`}>
-                      {customer.name.charAt(0)}
+                      {customer.name?.charAt(0) || '?'}
                     </div>
                     <div className="min-w-0">
                       <p className="font-bold text-gray-900 dark:text-gray-100 text-sm truncate">{customer.name}</p>
@@ -240,7 +240,7 @@ export const AIAssignmentDashboard = () => {
                             <p className="text-xs text-indigo-500 capitalize">{trader.experience}</p>
                           </div>
                           <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-black text-lg flex-shrink-0">
-                            {trader.name.charAt(0)}
+                            {trader.name?.charAt(0) || '?'}
                           </div>
                         </div>
                       ) : (

@@ -12,14 +12,27 @@ export const MarketAnalytics = () => {
 
   const fetchMarketData = async () => {
     try {
-      const res = await fetch(`${API_URL}/system/market`, {
-        headers: { 'Authorization': `Bearer ${user.token}` }
-      });
-      const data = await res.json();
-      setMarkets(data);
-      setLoading(false);
+      const headers = {};
+      if (user?.token) {
+        headers['Authorization'] = `Bearer ${user.token}`;
+      }
+
+      const res = await fetch(`${API_URL}/system/market`, { headers });
+      
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setMarkets(data);
+        } else {
+          console.error('Expected array for market data, got:', data);
+        }
+      } else {
+        console.error('Market fetch failed with status:', res.status);
+      }
     } catch (err) {
       console.error('Market fetch failed:', err);
+    } finally {
+      setLoading(false);
     }
   };
 

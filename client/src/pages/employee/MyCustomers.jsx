@@ -400,7 +400,7 @@ export const MyCustomers = () => {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-black text-base shadow-md">
-                    {c.name.charAt(0).toUpperCase()}
+                    {(c.name?.charAt(0) || '?').toUpperCase()}
                   </div>
                   <div>
                     <p className="font-bold text-gray-900 dark:text-gray-100 text-sm">{c.name}</p>

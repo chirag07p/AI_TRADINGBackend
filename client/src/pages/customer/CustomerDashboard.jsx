@@ -293,7 +293,7 @@ export const CustomerDashboard = () => {
             <div>
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-20 h-20 rounded-3xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-3xl font-black text-indigo-600">
-                  {proposedMatch.trader.name.charAt(0)}
+                  {proposedMatch.trader.name?.charAt(0) || '?'}
                 </div>
                 <div>
                   <h3 className="text-2xl font-black text-gray-900 dark:text-white">{proposedMatch.trader.name}</h3>
@@ -590,7 +590,7 @@ export const CustomerDashboard = () => {
                     <div key={t._id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-gray-100/50 dark:border-gray-800/50 hover:border-indigo-200 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs ${t.type === 'BUY' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                          {t.type.charAt(0)}
+                          {t.type?.charAt(0) || '?'}
                         </div>
                         <div>
                           <p className="font-black text-sm text-gray-900 dark:text-white">{t.symbol}</p>
@@ -626,7 +626,7 @@ export const CustomerDashboard = () => {
               
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-xl font-black">
-                  {assignedTrader ? assignedTrader.name.charAt(0) : '?'}
+                  {assignedTrader ? (assignedTrader.name?.charAt(0) || '?') : '?'}
                 </div>
                 <div>
                   <h3 className="text-lg font-black leading-none mb-1">{assignedTrader ? assignedTrader.name : 'Awaiting Match'}</h3>

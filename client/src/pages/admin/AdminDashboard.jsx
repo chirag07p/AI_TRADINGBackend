@@ -160,7 +160,7 @@ export const AdminDashboard = () => {
                         #{idx + 1}
                       </div>
                       <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-                        {emp.name.charAt(0)}
+                        {emp.name?.charAt(0) || '?'}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-sm text-gray-900 dark:text-gray-100 truncate">{emp.name}</p>
@@ -204,7 +204,7 @@ export const AdminDashboard = () => {
                   <div key={trade.id} className="flex items-center justify-between border-b border-gray-50 dark:border-gray-800 pb-3 last:border-none last:pb-0">
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-[10px] ${trade.type === 'BUY' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                        {trade.type.charAt(0)}
+                        {trade.type?.charAt(0) || '?'}
                       </div>
                       <div>
                         <p className="text-xs font-black text-gray-900 dark:text-white leading-none mb-1">{trade.symbol}</p>

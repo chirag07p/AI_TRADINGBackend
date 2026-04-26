@@ -26,8 +26,8 @@ export const MarketIntelligence = () => {
       const res = await fetch(`${API_URL}/system/intelligence`);
       const data = await res.json();
       if (data.success) {
-        setSignals(data.signals);
-        setStats(data.networkStats);
+        if (Array.isArray(data.signals)) setSignals(data.signals);
+        if (data.networkStats) setStats(data.networkStats);
       }
     } catch (err) {
       console.error('Intelligence fetch failed', err);
@@ -58,7 +58,7 @@ export const MarketIntelligence = () => {
                 <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center text-3xl font-black text-white shadow-2xl ${
                   selectedSignal.sentiment === 'Bullish' ? 'bg-green-500' : 'bg-red-500'
                 }`}>
-                  {selectedSignal.pair.charAt(0)}
+                  {selectedSignal.pair?.charAt(0) || '?'}
                 </div>
                 <div>
                   <h2 className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">{selectedSignal.pair}</h2>
@@ -203,7 +203,7 @@ export const MarketIntelligence = () => {
                       ? 'bg-red-500 text-white shadow-red-500/20'
                       : 'bg-gray-500 text-white'
                     }`}>
-                      {signal.pair.charAt(0)}
+                      {signal.pair?.charAt(0) || '?'}
                     </div>
                     <div>
                       <h3 className="text-xl font-black text-gray-900 dark:text-white">{signal.pair}</h3>

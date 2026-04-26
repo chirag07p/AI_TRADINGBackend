@@ -3,15 +3,38 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Ca
 import { Badge } from '../../components/ui/Badge';
 import { Award, Target, Users, LineChart, TrendingUp, Star } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { API_URL } from '../../services/api';
 
 export const PerformanceInsights = () => {
   const { user } = useAuth();
+  const [loading, setLoading] = React.useState(true);
+  const [apiStats, setApiStats] = React.useState(null);
+
+  React.useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const headers = {};
+        if (user?.token) headers['Authorization'] = `Bearer ${user.token}`;
+        
+        const res = await fetch(`${API_URL}/system/performance`, { headers });
+        if (res.ok) {
+          const data = await res.json();
+          setApiStats(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch stats:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, [user]);
   
   const stats = [
-    { label: 'Total Clients', value: '12', icon: Users, color: 'text-blue-500' },
-    { label: 'Success Rate', value: '88%', icon: Target, color: 'text-green-500' },
-    { label: 'Platform Rank', value: '#4', icon: Award, color: 'text-yellow-500' },
-    { label: 'Avg Feedback', value: '4.8', icon: Star, color: 'text-purple-500' },
+    { label: 'Total Clients', value: apiStats?.totalClients || '12', icon: Users, color: 'text-blue-500' },
+    { label: 'Success Rate', value: apiStats?.successRate || '88%', icon: Target, color: 'text-green-500' },
+    { label: 'Platform Rank', value: apiStats?.platformRank || '#4', icon: Award, color: 'text-yellow-500' },
+    { label: 'Avg Feedback', value: apiStats?.avgFeedback || '4.8', icon: Star, color: 'text-purple-500' },
   ];
 
   return (

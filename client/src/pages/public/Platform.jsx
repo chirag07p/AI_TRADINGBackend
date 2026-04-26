@@ -35,7 +35,7 @@ export const Platform = () => {
       name: 'System Engine', 
       status: 'Syncing', 
       latency: '2.1ms', 
-      desc: 'Our proprietary neural matching layer. Analyzes risk profiles and market trends to generate Alpha Stream signals.',
+      desc: 'Our proprietary neural matching layer. Analyzes risk profiles and market trends to generate Intelligent signals.',
       details: ['Neural Weights: 1.2B', 'Pattern Recognition', 'Risk DNA Analysis']
     },
     { 
@@ -74,7 +74,7 @@ export const Platform = () => {
           </Badge>
           <h1 className="text-6xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight">
             The Engine Behind <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600">Alpha Execution</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600">Intelligent Execution</span>
           </h1>
           <p className="text-xl text-gray-500 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
             Trade AI isn't just a dashboard—it's a high-throughput financial neural network. 

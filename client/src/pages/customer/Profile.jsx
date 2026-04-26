@@ -35,7 +35,7 @@ export const Profile = () => {
         <div className="absolute -right-10 -top-10 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
         <div className="relative flex flex-col md:flex-row items-center gap-8">
           <div className="h-24 w-24 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-4xl font-black shadow-inner">
-            {customerData.name.charAt(0)}
+            {customerData.name?.charAt(0) || '?'}
           </div>
           <div className="text-center md:text-left space-y-2">
             <div className="flex flex-col md:flex-row md:items-center gap-3">

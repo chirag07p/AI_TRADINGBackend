@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useLayout } from '../../context/LayoutContext';
 import { 
   LayoutDashboard, 
   Users, 
@@ -28,7 +29,7 @@ import { cn } from '../ui/Card';
 export const Sidebar = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isSidebarCollapsed: isCollapsed, setIsSidebarCollapsed: setIsCollapsed } = useLayout();
 
   const getLinks = () => {
     // Public Links
@@ -69,7 +70,7 @@ export const Sidebar = () => {
   return (
     <aside 
       className={cn(
-        "fixed left-0 top-[72px] h-[calc(100vh-72px)] bg-white dark:bg-gray-950 border-r border-gray-100 dark:border-gray-900 transition-all duration-300 z-40 group shadow-2xl shadow-indigo-500/5",
+        "fixed left-0 top-20 h-[calc(100vh-80px)] bg-white dark:bg-gray-950 border-r border-gray-100 dark:border-gray-900 transition-all duration-300 z-40 group shadow-2xl shadow-indigo-500/5",
         isCollapsed ? "w-20" : "w-64"
       )}
     >
@@ -81,14 +82,14 @@ export const Sidebar = () => {
         {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
       </button>
 
-      <div className="p-4 flex flex-col h-full">
+      <div className="p-5 flex flex-col h-full">
         <div className="space-y-2 flex-1">
           {links.map((link) => (
             <NavLink
               key={link.path}
               to={link.path}
               className={({ isActive }) => cn(
-                "flex items-center gap-3 p-3.5 rounded-2xl transition-all duration-200 group/item",
+                "flex items-center gap-3 p-4 rounded-2xl transition-all duration-200 group/item",
                 isActive 
                   ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20" 
                   : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-indigo-600"

@@ -201,7 +201,7 @@ export const Analytics = () => {
                   'bg-orange-100 text-orange-700'
                 }`}>#{idx + 1}</div>
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                  {t.name.charAt(0)}
+                  {t.name?.charAt(0) || '?'}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm text-gray-900 dark:text-gray-100">{t.name}</p>

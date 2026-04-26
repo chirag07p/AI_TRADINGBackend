@@ -34,7 +34,7 @@ const EditUserModal = ({ user, employees, onSave, onClose }) => {
         <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black">
-              {user.name.charAt(0)}
+              {user.name?.charAt(0) || '?'}
             </div>
             <div>
               <h3 className="font-bold text-gray-900 dark:text-white text-base">{user.name}</h3>
@@ -318,7 +318,7 @@ export const UsersManagement = () => {
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-black">
-                  {u.name.charAt(0)}
+                  {u.name?.charAt(0) || '?'}
                 </div>
                 <div>
                   <p className="font-bold text-gray-900 dark:text-gray-100 text-sm">{u.name}</p>
