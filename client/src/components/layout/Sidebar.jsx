@@ -19,6 +19,7 @@ import {
   Home,
   Info,
   DollarSign,
+  Cpu,
   LogIn,
   UserPlus
 } from 'lucide-react';
@@ -34,7 +35,7 @@ export const Sidebar = () => {
     if (!user) return [
       { name: 'Home', path: '/', icon: Home },
       { name: 'Platform', path: '/platform', icon: Globe },
-      { name: 'Pricing', path: '/pricing', icon: DollarSign },
+      { name: 'Market Intelligence', path: '/market-intelligence', icon: Activity },
       { name: 'About', path: '/about', icon: Info },
     ];
 

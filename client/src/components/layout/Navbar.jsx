@@ -20,7 +20,7 @@ export const Navbar = () => {
     if (!user) return [
       { name: 'Home', path: '/' },
       { name: 'Platform', path: '/platform' },
-      { name: 'Pricing', path: '/pricing' },
+      { name: 'Market Intelligence', path: '/market-intelligence' },
       { name: 'About Us', path: '/about' },
       { name: 'Contact', path: '/contact' }
     ];

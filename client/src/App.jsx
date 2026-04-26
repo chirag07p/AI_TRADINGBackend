@@ -11,7 +11,7 @@ import { ProtectedRoute } from './components/layout/ProtectedRoute';
 // Public
 import { Home } from './pages/public/Home';
 import { Platform } from './pages/public/Platform';
-import { Pricing } from './pages/public/Pricing';
+import { MarketIntelligence } from './pages/public/MarketIntelligence';
 import { About } from './pages/public/About';
 import { Contact } from './pages/public/Contact';
 
@@ -68,7 +68,7 @@ function App() {
                 {/* Public */}
                 <Route path="/" element={<Home />} />
                 <Route path="/platform" element={<Platform />} />
-                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/market-intelligence" element={<MarketIntelligence />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/login" element={<Login />} />
