@@ -325,9 +325,9 @@ export const CustomerDashboard = () => {
                 <Info className="w-4 h-4" />
                 <span className="text-[10px] font-black uppercase tracking-widest">System Match Reasoning</span>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed italic flex-1">
-                "{proposedMatch.aiExplanation}"
-              </p>
+              <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed flex-1 prose prose-sm dark:prose-invert max-w-none">
+                <ReactMarkdown>{proposedMatch.aiExplanation}</ReactMarkdown>
+              </div>
               
               <div className="grid grid-cols-2 gap-4 mt-8">
                 <Button 
