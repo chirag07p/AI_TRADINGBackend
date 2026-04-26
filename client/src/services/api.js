@@ -3,7 +3,8 @@
  * Connects the React frontend to the Express backend on port 5000
  */
 
-export const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000/api`;
+const rawApiUrl = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000/api`;
+export const API_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl.replace(/\/+$/, '')}/api`;
 
 // ─── Helper: builds headers with optional auth token ───
 const getHeaders = (token = null) => {
