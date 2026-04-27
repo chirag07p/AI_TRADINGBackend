@@ -10,7 +10,6 @@ import { GoogleLogin } from '@react-oauth/google';
 
 export const Login = () => {
   const [role, setRole] = useState('Customer');
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -30,8 +29,10 @@ export const Login = () => {
     try {
       setIsLoading(true);
       setError('');
-      await googleLogin(credentialResponse.credential);
-      navigate('/customer');
+      const userData = await googleLogin(credentialResponse.credential, role);
+      if (userData.role === 'Admin') navigate('/admin');
+      else if (userData.role === 'Employee') navigate('/employee');
+      else navigate('/customer');
     } catch (err) {
       setError('Google authentication failed. Please try again.');
     } finally {
@@ -45,37 +46,18 @@ export const Login = () => {
     setIsLoading(true);
 
     try {
-      if (role === 'Customer') {
-        // Real backend authentication for Customers
-        if (!email.trim() || !password.trim()) {
-          setError('Please enter email and password.');
-          setIsLoading(false);
-          return;
-        }
-        await login({ email: email.trim(), password, role: 'Customer' });
-        navigate('/customer');
-      } else {
-        // Mock login for Admin / Employee roles (existing behavior)
-        if (!name.trim()) {
-          setError('Please enter a name.');
-          setIsLoading(false);
-          return;
-        }
-
-        let user;
-        if (role === 'Admin') {
-          user = { id: 'admin1', name: name.trim(), role: 'Admin' };
-        } else {
-          user = employees.find(emp => emp.name.toLowerCase().includes(name.trim().toLowerCase())) || 
-                 { id: `emp_${Date.now()}`, name: name.trim(), role: 'Employee', experience: 'Junior', specialization: 'mixed' };
-        }
-
-        mockLogin(user);
-
-        if (role === 'Admin') navigate('/admin');
-        else if (role === 'Employee') navigate('/employee');
-        else navigate('/customer/onboarding');
+      if (!email.trim() || !password.trim()) {
+        setError('Please enter email and password.');
+        setIsLoading(false);
+        return;
       }
+      
+      const userData = await login({ email: email.trim(), password, role });
+      
+      if (userData.role === 'Admin') navigate('/admin');
+      else if (userData.role === 'Employee') navigate('/employee');
+      else navigate('/customer');
+      
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.');
     } finally {
@@ -122,39 +104,26 @@ export const Login = () => {
               </select>
             </div>
 
-            {/* Show email for Customer (real auth), name for Admin/Employee (mock) */}
-            {role === 'Customer' ? (
-              <Input
-                label="Email Address"
-                type="email"
-                placeholder="e.g., john@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            ) : (
-              <Input
-                label="Username / Name"
-                placeholder="e.g., Alice, Admin, John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            )}
+            <Input
+              label="Email Address"
+              type="email"
+              placeholder="e.g., john@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
             
             <div>
               <Input
                 label="Password"
                 type="password"
-                placeholder={role === 'Customer' ? 'Enter your password' : 'Enter any dummy password'}
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
               <div className="flex justify-between items-center mt-1">
-                {role !== 'Customer' ? (
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Hint: Use any text for mock auth</p>
-                ) : <div />}
+                <div />
                 <button 
                   type="button" 
                   onClick={() => setShowForgot(true)}
@@ -178,28 +147,26 @@ export const Login = () => {
             Don't have an account? <Link to="/register" className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Register here</Link>
           </p>
 
-          {role === 'Customer' && (
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">Or continue with</span>
-                </div>
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
               </div>
-              
-              <div className="mt-6 flex justify-center">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => setError('Google Login failed')}
-                  theme="outline"
-                  shape="rectangular"
-                  text="signin_with"
-                />
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">Or continue with</span>
               </div>
             </div>
-          )}
+            
+            <div className="mt-6 flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google Login failed')}
+                theme="outline"
+                shape="rectangular"
+                text="signin_with"
+              />
+            </div>
+          </div>
         </form>
       </Card>
 

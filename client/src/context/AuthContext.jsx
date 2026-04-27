@@ -34,12 +34,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const googleLogin = async (credential) => {
+  const googleLogin = async (credential, selectedRole = 'Customer') => {
     setLoading(true);
     setError(null);
     try {
       const data = await googleLoginUser(credential);
-      const userData = { ...data, role: data.role || 'Customer' };
+      const userData = { ...data, role: data.role || selectedRole };
       setUser(userData);
       localStorage.setItem('authUser', JSON.stringify(userData));
       return userData;

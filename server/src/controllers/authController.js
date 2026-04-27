@@ -81,7 +81,7 @@ const authUser = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/google
 // @access  Public
 const googleAuth = asyncHandler(async (req, res) => {
-  const { credential } = req.body;
+  const { credential, role } = req.body;
   
   const ticket = await client.verifyIdToken({
     idToken: credential,
@@ -96,12 +96,14 @@ const googleAuth = asyncHandler(async (req, res) => {
   if (!user) user = await Customer.findOne({ email });
 
   if (!user) {
-    user = await Customer.create({
-      name,
-      email,
-      googleId,
-      role: 'Customer', 
-    });
+    const requestedRole = role || 'Customer';
+    if (requestedRole === 'Admin') {
+      user = await Admin.create({ name, email, googleId, role: 'Admin' });
+    } else if (requestedRole === 'Employee') {
+      user = await Trader.create({ name, email, googleId, role: 'Employee' });
+    } else {
+      user = await Customer.create({ name, email, googleId, role: 'Customer' });
+    }
   }
 
   res.status(200).json({

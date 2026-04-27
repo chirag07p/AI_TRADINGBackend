@@ -25,9 +25,13 @@ export const Register = () => {
     try {
       setIsLoading(true);
       setError('');
-      await googleLogin(credentialResponse.credential);
+      const userData = await googleLogin(credentialResponse.credential, role);
       setSuccess('Account created successfully! Redirecting...');
-      setTimeout(() => navigate('/customer'), 1500);
+      setTimeout(() => {
+        if (userData.role === 'Admin') navigate('/admin');
+        else if (userData.role === 'Employee') navigate('/employee');
+        else navigate('/customer');
+      }, 1500);
     } catch (err) {
       setError('Google authentication failed. Please try again.');
     } finally {
@@ -158,28 +162,26 @@ export const Register = () => {
             Already have an account? <Link to="/login" className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Sign in</Link>
           </p>
 
-          {role === 'Customer' && (
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">Or continue with</span>
-                </div>
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
               </div>
-              
-              <div className="mt-6 flex justify-center">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => setError('Google Signup failed')}
-                  theme="outline"
-                  shape="rectangular"
-                  text="signup_with"
-                />
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">Or continue with</span>
               </div>
             </div>
-          )}
+            
+            <div className="mt-6 flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google Signup failed')}
+                theme="outline"
+                shape="rectangular"
+                text="signup_with"
+              />
+            </div>
+          </div>
         </form>
       </Card>
     </div>

@@ -61,8 +61,12 @@ export const EmployeeDashboard = () => {
     if (!aiQuery) return;
     setAiLoading(true);
     try {
-      const advice = await getAIAdvice(aiQuery, 'MARKET');
-      setAiResponse(advice);
+      const response = await getAIAdvice(user.token, {
+        symbol: 'MARKET',
+        marketData: {},
+        query: aiQuery,
+      });
+      setAiResponse(response.advice);
     } catch (err) {
       setAiResponse("AI Service unreachable. Please check backend API connection.");
     } finally {
