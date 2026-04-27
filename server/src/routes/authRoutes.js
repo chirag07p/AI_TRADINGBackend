@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { registerUser, authUser } = require('../controllers/authController');
+const { registerUser, authUser, googleAuth } = require('../controllers/authController');
 const validateRequest = require('../middlewares/validate');
 
 const router = express.Router();
@@ -17,5 +17,7 @@ router.post('/login', [
   body('password').exists().withMessage('Password is required'),
   validateRequest
 ], authUser);
+
+router.post('/google', googleAuth);
 
 module.exports = router;

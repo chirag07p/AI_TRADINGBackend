@@ -6,6 +6,7 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { TrendingUp, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 
 export const Login = () => {
   const [role, setRole] = useState('Customer');
@@ -21,9 +22,22 @@ export const Login = () => {
   const [forgotSent, setForgotSent] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
   
-  const { login, mockLogin } = useAuth();
+  const { login, mockLogin, googleLogin } = useAuth();
   const { employees, customers } = useAppData();
   const navigate = useNavigate();
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setIsLoading(true);
+      setError('');
+      await googleLogin(credentialResponse.credential);
+      navigate('/customer');
+    } catch (err) {
+      setError('Google authentication failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -163,6 +177,29 @@ export const Login = () => {
           <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
             Don't have an account? <Link to="/register" className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Register here</Link>
           </p>
+
+          {role === 'Customer' && (
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">Or continue with</span>
+                </div>
+              </div>
+              
+              <div className="mt-6 flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setError('Google Login failed')}
+                  theme="outline"
+                  shape="rectangular"
+                  text="signin_with"
+                />
+              </div>
+            </div>
+          )}
         </form>
       </Card>
 

@@ -34,6 +34,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const googleLogin = async (credential) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { googleLoginUser } = await import('../services/api');
+      const data = await googleLoginUser(credential);
+      const userData = { ...data, role: data.role || 'Customer' };
+      setUser(userData);
+      localStorage.setItem('authUser', JSON.stringify(userData));
+      return userData;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Register via backend API
   const register = async ({ name, email, password, role, phone }) => {
     setLoading(true);
@@ -63,7 +81,7 @@ export const AuthProvider = ({ children }) => {
   const clearError = () => setError(null);
 
   return (
-    <AuthContext.Provider value={{ user, login, register, mockLogin, logout, loading, error, clearError }}>
+    <AuthContext.Provider value={{ user, login, googleLogin, register, mockLogin, logout, loading, error, clearError }}>
       {children}
     </AuthContext.Provider>
   );
