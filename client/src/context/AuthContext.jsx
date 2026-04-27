@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import { loginUser as apiLogin, registerUser as apiRegister } from '../services/api';
+import { loginUser as apiLogin, registerUser as apiRegister, googleLoginUser } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -38,7 +38,6 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      const { googleLoginUser } = await import('../services/api');
       const data = await googleLoginUser(credential);
       const userData = { ...data, role: data.role || 'Customer' };
       setUser(userData);
