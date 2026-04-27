@@ -73,10 +73,18 @@ Trade AI utilizes a custom-built design system characterized by:
 - **Node.js & Express**: Scalable RESTful architecture with unified error handling.
 - **Multi-Collection MongoDB**: Scalable data model with segregated `admins`, `customers`, and `traders` collections.
 - **JWT + Bcrypt**: Secure token-based auth with cross-collection identity verification.
+- **Enhanced Middleware**: Granular authentication logic that distinguishes between `401 Unauthorized` (identity issues) and `403 Forbidden` (permission issues).
 - **Google Auth Library**: Secure verification of Google ID tokens for seamless backend authentication.
+
+### Recent Enhancements
+- **Auth Robustness**: Integrated safety checks in the frontend to prevent redundant Google initialization and handle missing environment variables gracefully.
+- **Advanced Error Logging**: Implemented server-side JWT verification logging for rapid debugging of authentication issues.
+- **Role-Based Access Control (RBAC)**: Standardized admin-only routes using a unified `admin` middleware for consistent platform security.
+- **Development Environment Polish**: Mitigated common development-time warnings related to React Strict Mode and Ad-blocker interference.
 
 ### AI Engine
 - **System Engine**: High-parameter LLM integration via OpenRouter, delivering structured, context-aware financial strategy in Markdown.
+- **Match Reasonings**: AI match logic that provides transparent explanations for trader-customer pairings.
 
 ---
 

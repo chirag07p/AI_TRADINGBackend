@@ -1,7 +1,7 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { executeTrade, getTrades } = require('../controllers/tradeController');
-const { protect } = require('../middlewares/authMiddleware');
+const { executeTrade, getTrades, getAllTrades } = require('../controllers/tradeController');
+const { protect, admin } = require('../middlewares/authMiddleware');
 const validateRequest = require('../middlewares/validate');
 
 const router = express.Router();
@@ -20,11 +20,6 @@ router.route('/')
   )
   .get(protect, getTrades);
 
-router.get('/all', protect, (req, res, next) => {
-  if (req.user.role !== 'Admin') {
-    return res.status(403).json({ message: 'Admin access only' });
-  }
-  next();
-}, require('../controllers/tradeController').getAllTrades);
+router.get('/all', protect, admin, getAllTrades);
 
 module.exports = router;
