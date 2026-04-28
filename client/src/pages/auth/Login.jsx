@@ -83,7 +83,7 @@ export const Login = () => {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 shadow-inner">
             <TrendingUp className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">TradeAI Dashboard</h2>
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Top Gun Dashboard</h2>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Sign in to your account</p>
         </div>
         

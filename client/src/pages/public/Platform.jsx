@@ -77,7 +77,7 @@ export const Platform = () => {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600">Intelligent Execution</span>
           </h1>
           <p className="text-xl text-gray-500 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Trade AI isn't just a dashboard—it's a high-throughput financial neural network. 
+            Top Gun isn't just a dashboard—it's a high-throughput financial neural network. 
             Click the architecture nodes below to inspect the system logic.
           </p>
         </div>

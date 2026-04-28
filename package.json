@@ -1,7 +1,7 @@
 {
   "name": "solution-challenge",
   "version": "1.0.0",
-  "description": "A modern, full-stack, enterprise-grade platform for intelligent trading allocation. Trade AI features a secure Express/MongoDB backend mapped to a deeply interactive and responsive React frontend. It unites retail investors, professional traders, and system administrators into one cohesive ecosystem powered by simulated markets and AI-driven logic.",
+  "description": "A modern, full-stack, enterprise-grade platform for intelligent trading allocation. Top Gun features a secure Express/MongoDB backend mapped to a deeply interactive and responsive React frontend. It unites retail investors, professional traders, and system administrators into one cohesive ecosystem powered by simulated markets and AI-driven logic.",
   "main": "index.js",
   "scripts": {
     "server": "npm run dev --prefix server",

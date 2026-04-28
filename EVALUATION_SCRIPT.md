@@ -1,4 +1,4 @@
-# Trade AI: Evaluation & Judging Pitch Script
+# Top Gun: Evaluation & Judging Pitch Script
 
 *This script is a simple, easy-to-read 3-5 minute presentation for judges. It covers what the app does, how it works behind the scenes, the AI part, and a live demo.*
 
@@ -7,11 +7,11 @@
 ## 🎤 1. The Hook (0:00 - 0:45)
 
 **Speaker:**
-"Hello Judges. Welcome to Trade AI.
+"Hello Judges. Welcome to Top Gun.
 
 Everyday investors usually don't have access to the same smart, personalized trading strategies that professionals use. 
 
-We built **Trade AI** to fix that. It's a complete trading platform powered by an automated matching engine and real-time AI advice.
+We built **Top Gun** to fix that. It's a complete trading platform powered by an automated matching engine and real-time AI advice.
 
 This isn't just a basic chatbot. Our system automatically pairs everyday investors with experienced professional traders. Then, it uses AI to explain *why* that pairing is a good match and gives the user clear, personalized trading strategies."
 
@@ -68,7 +68,7 @@ And to make sure the app never breaks, we have backup systems. If the AI is ever
 ## 🚀 5. Conclusion & Future Roadmap (3:30 - 4:00)
 
 **Speaker:**
-"To wrap up, Trade AI is very secure and built to grow. 
+"To wrap up, Top Gun is very secure and built to grow. 
 
 In the future, we plan to add even faster live market data and put our trade records on a blockchain so they can never be altered.
 

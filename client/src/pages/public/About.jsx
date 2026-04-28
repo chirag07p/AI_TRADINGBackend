@@ -4,12 +4,12 @@ export const About = () => {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 py-16 px-4 max-w-4xl mx-auto space-y-10">
       <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 text-center mb-12">
-        About TradeAI
+        About Top Gun
       </h1>
       
       <div className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 font-medium leading-relaxed">
         <p>
-          Founded on the principle that the immense complexity of quantitative algorithmic trading should be democratized, TradeAI serves as the bridge between institutional data analysis and individual retail investors.
+          Founded on the principle that the immense complexity of quantitative algorithmic trading should be democratized, Top Gun serves as the bridge between institutional data analysis and individual retail investors.
         </p>
         <p>
           Rather than offering complex broker platforms with steep learning curves, we rely on a sophisticated backend assigning engine. By answering a few simple risk tolerance questions, our platform instantly pairs you with mocked, data-driven "Trader Profiles" that match your exact monetary constraints and profit margins.

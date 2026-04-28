@@ -151,7 +151,7 @@ export const Wallet = () => {
                 <div className="p-2 bg-white/20 rounded-lg backdrop-blur-md">
                   <WalletIcon className="w-5 h-5 text-indigo-50" />
                 </div>
-                <span className="font-semibold tracking-wide text-indigo-100">TradeAI Black</span>
+                <span className="font-semibold tracking-wide text-indigo-100">Top Gun Black</span>
               </div>
               <CreditCard className="w-8 h-8 opacity-50" />
             </div>

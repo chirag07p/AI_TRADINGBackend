@@ -61,7 +61,7 @@ export const Navbar = () => {
           <div className="premium-logo-icon-wrapper">
             <TrendingUp className="premium-logo-icon" />
           </div>
-          <span className="premium-logo-text">TradeAI</span>
+          <span className="premium-logo-text">Top Gun</span>
         </div>
 
         {/* Interactions & User Profile */}

@@ -86,7 +86,7 @@ export const AdminDashboard = () => {
               <span className="text-xs font-bold uppercase tracking-widest text-indigo-200">System Live</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-black mb-2">Admin Control Panel</h1>
-            <p className="text-indigo-200 text-sm">Trade AI Platform — Full system overview and management</p>
+            <p className="text-indigo-200 text-sm">Top Gun Platform — Full system overview and management</p>
           </div>
           <div className="flex gap-3">
             <Button
