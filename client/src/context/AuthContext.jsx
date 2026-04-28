@@ -22,7 +22,8 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const data = await apiLogin({ email, password });
-      const userData = { ...data, role: role || 'Customer' };
+      // Use role from backend if available, otherwise fallback to 'Customer'
+      const userData = { ...data, role: data.role || 'Customer' };
       setUser(userData);
       localStorage.setItem('authUser', JSON.stringify(userData));
       return userData;
@@ -39,7 +40,8 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const data = await googleLoginUser(credential);
-      const userData = { ...data, role: data.role || selectedRole };
+      // Use role from backend if available, otherwise fallback to selectedRole or 'Customer'
+      const userData = { ...data, role: data.role || selectedRole || 'Customer' };
       setUser(userData);
       localStorage.setItem('authUser', JSON.stringify(userData));
       return userData;
