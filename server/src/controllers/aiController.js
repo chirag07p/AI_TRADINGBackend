@@ -1,7 +1,8 @@
 const asyncHandler = require('express-async-handler');
-const { OpenRouter } = require('@openrouter/sdk');
+const { generateAiText } = require('../services/aiProviderService');
+const AiMarkdownNote = require('../models/AiMarkdownNote');
 
-// @desc    Get AI trading advice / reasoning from OpenRouter
+// @desc    Get AI trading advice / reasoning from the AI provider chain
 // @route   POST /api/ai/advice
 // @access  Private
 const getTradingAdvice = asyncHandler(async (req, res) => {
@@ -18,41 +19,27 @@ Market Data: ${JSON.stringify(marketData)}
 Query: ${query}`;
 
   try {
-    const openrouter = new OpenRouter({
-      apiKey: process.env.OPENROUTER_API_KEY
-    });
+    const advice = await generateAiText(prompt);
 
-    const stream = await openrouter.chat.send({
-      chatRequest: {
-        model: "nvidia/nemotron-3-super-120b-a12b:free",
-        messages: [
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        stream: true
+    const savedNote = await AiMarkdownNote.create({
+      userId: req.user._id,
+      userRole: req.user.role,
+      source: 'employee-copilot',
+      prompt,
+      markdownContent: advice,
+      modelUsed: 'nemotron-primary-with-gemini-fallback',
+      metadata: {
+        symbol,
+        marketData,
+        query
       }
     });
 
-    let advice = "";
-    for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content;
-      if (content) {
-        advice += content;
-      }
-      
-      // We can log usage if needed
-      // if (chunk.usage) {
-      //   console.log("\\nReasoning tokens:", chunk.usage.reasoningTokens);
-      // }
-    }
-
-    res.json({ advice });
+    res.json({ advice, noteId: savedNote._id, format: 'markdown' });
   } catch (error) {
     console.error('Error fetching AI advice:', error?.response?.data || error.message);
     res.status(502);
-    throw new Error('Failed to fetch AI reasoning from OpenRouter');
+    throw new Error('Failed to fetch AI reasoning from the provider chain');
   }
 });
 

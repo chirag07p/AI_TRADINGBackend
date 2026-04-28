@@ -1,10 +1,4 @@
-const { OpenRouter } = require('@openrouter/sdk');
-const fs = require('fs');
-const path = require('path');
-
-const openrouter = new OpenRouter({
-  apiKey: process.env.OPENROUTER_API_KEY
-});
+const { generateAiText } = require('./aiProviderService');
 
 // Internal Fail-safe Templates
 const TEMPLATES = {
@@ -36,21 +30,7 @@ const getMatchExplanation = async (trader, client, score) => {
       score: score
     });
 
-    const stream = await openrouter.chat.send({
-      chatRequest: {
-        model: "nvidia/nemotron-3-super-120b-a12b:free",
-        messages: [{ role: "user", content: prompt }],
-        stream: true
-      }
-    });
-
-    let explanation = "";
-    for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content;
-      if (content) explanation += content;
-    }
-
-    return explanation.trim();
+    return await generateAiText(prompt);
   } catch (error) {
     console.error('AI Matching Explanation Error:', error.message);
     return `Matched based on ${trader.level} expertise and ${client.riskAppetite} risk alignment.`;
@@ -66,21 +46,7 @@ const getRiskAnalysis = async (trader) => {
       max: trader.capacity
     });
 
-    const stream = await openrouter.chat.send({
-      chatRequest: {
-        model: "nvidia/nemotron-3-super-120b-a12b:free",
-        messages: [{ role: "user", content: prompt }],
-        stream: true
-      }
-    });
-
-    let analysis = "";
-    for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content;
-      if (content) analysis += content;
-    }
-
-    return analysis.trim();
+    return await generateAiText(prompt);
   } catch (error) {
     return 'FLAG - Capacity limit reached.';
   }

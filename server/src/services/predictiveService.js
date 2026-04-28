@@ -1,8 +1,4 @@
-const { OpenRouter } = require('@openrouter/sdk');
-
-const openrouter = new OpenRouter({
-  apiKey: process.env.OPENROUTER_API_KEY
-});
+const { generateAiText } = require('./aiProviderService');
 
 const getPredictiveAnalysis = async (clients, traders) => {
   try {
@@ -16,21 +12,7 @@ const getPredictiveAnalysis = async (clients, traders) => {
       Provide a "Predictive Warning" (2 sentences max) in professional tone.
     `;
 
-    const stream = await openrouter.chat.send({
-      chatRequest: {
-        model: "nvidia/nemotron-3-super-120b-a12b:free",
-        messages: [{ role: "user", content: prompt }],
-        stream: true
-      }
-    });
-
-    let prediction = "";
-    for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content;
-      if (content) prediction += content;
-    }
-
-    return prediction.trim();
+    return await generateAiText(prompt);
   } catch (error) {
     return "Demand remains stable within current trader capacity thresholds.";
   }
