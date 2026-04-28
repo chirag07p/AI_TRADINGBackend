@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppDataContext';
 import { useNavigate } from 'react-router-dom';
@@ -172,9 +173,9 @@ export const EmployeeDashboard = () => {
                   <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
                   <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Market Strategy Result</p>
                 </div>
-                <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed font-medium italic">
-                  "{aiResponse}"
-                </p>
+                <div className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed font-medium prose prose-sm dark:prose-invert max-w-none">
+                  <ReactMarkdown>{aiResponse}</ReactMarkdown>
+                </div>
                 <div className="mt-4 flex justify-end">
                   <Button variant="ghost" className="h-7 text-[10px] font-bold text-gray-400 hover:text-indigo-600" onClick={() => setAiResponse('')}>DISMISS INSIGHT</Button>
                 </div>

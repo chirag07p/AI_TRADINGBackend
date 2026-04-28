@@ -75,6 +75,7 @@ Trade AI utilizes a custom-built design system characterized by:
 - **JWT + Bcrypt**: Secure token-based auth with cross-collection identity verification.
 - **Enhanced Middleware**: Granular authentication logic that distinguishes between `401 Unauthorized` (identity issues) and `403 Forbidden` (permission issues).
 - **Google Auth Library**: Secure verification of Google ID tokens for seamless backend authentication.
+- **AI Markdown Notes**: Employee copilot responses are saved to MongoDB as Markdown so they can be rendered cleanly in the UI.
 
 ### Recent Enhancements
 - **Auth Robustness**: Integrated safety checks in the frontend to prevent redundant Google initialization and handle missing environment variables gracefully.
@@ -83,8 +84,8 @@ Trade AI utilizes a custom-built design system characterized by:
 - **Development Environment Polish**: Mitigated common development-time warnings related to React Strict Mode and Ad-blocker interference.
 
 ### AI Engine
-- **System Engine**: High-parameter LLM integration via OpenRouter, delivering structured, context-aware financial strategy in Markdown.
-- **Match Reasonings**: AI match logic that provides transparent explanations for trader-customer pairings.
+- **System Engine**: High-parameter LLM integration with Nemotron as the primary provider and Gemini as a free backup for structured, context-aware financial strategy in Markdown.
+- **Employee Copilot Storage**: Copilot answers are persisted as Markdown notes in MongoDB instead of being returned as quoted text.
 
 ---
 
@@ -98,6 +99,7 @@ NODE_ENV=development
 DB_URI=your_mongodb_atlas_uri
 JWT_SECRET=your_jwt_secret
 OPENROUTER_API_KEY=your_openrouter_api_key
+GEMINI_API_KEY=your_gemini_api_key
 GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
 ```
 
