@@ -17,9 +17,15 @@ export const SmartAlertBar = ({ token }) => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
-      setTriggers(data || []);
+      if (Array.isArray(data)) {
+        setTriggers(data);
+      } else {
+        console.error('Trigger fetch returned non-array data:', data);
+        setTriggers([]);
+      }
     } catch (err) {
       console.error('Trigger fetch failed', err);
+      setTriggers([]);
     } finally {
       setLoading(false);
     }
