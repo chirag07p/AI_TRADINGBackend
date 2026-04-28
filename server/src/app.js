@@ -34,6 +34,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 // Routing
+app.get('/', (req, res) => res.status(200).send('API is running...'));
 app.use('/api', routes);
 
 // Error Handling

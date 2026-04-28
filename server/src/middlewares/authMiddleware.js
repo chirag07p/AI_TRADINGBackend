@@ -16,16 +16,18 @@ const protect = async (req, res, next) => {
       if (!user) user = await Customer.findById(decoded.id).select('-password');
       if (!user) user = await Trader.findById(decoded.id).select('-password');
       
+      if (!user) {
+        return res.status(401).json({ message: 'Not authorized, user not found' });
+      }
+
       req.user = user;
       next();
     } catch (error) {
-      console.error(error);
-      res.status(401).json({ message: 'Not authorized, token failed' });
+      console.error('JWT Verification Error:', error.message);
+      return res.status(401).json({ message: 'Not authorized, token failed' });
     }
-  }
-
-  if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token' });
+  } else {
+    return res.status(401).json({ message: 'Not authorized, no token' });
   }
 };
 
@@ -33,8 +35,7 @@ const admin = (req, res, next) => {
   if (req.user && req.user.role === 'Admin') {
     next();
   } else {
-    res.status(401);
-    throw new Error('Not authorized as an admin');
+    res.status(403).json({ message: 'Not authorized as an admin' });
   }
 };
 
