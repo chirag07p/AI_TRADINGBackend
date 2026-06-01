@@ -28,14 +28,17 @@ app.use(cors({
   },
   credentials: true
 }));
+
+// Public/Monitoring Routes (bypass rate limiting)
+app.get('/', (req, res) => res.status(200).send('API is running...'));
+app.get('/health', (req, res) => res.status(200).json({ status: 'OK', timestamp: new Date() }));
+
 app.use(limiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 // Routing
-app.get('/', (req, res) => res.status(200).send('API is running...'));
-app.get('/health', (req, res) => res.status(200).json({ status: 'OK', timestamp: new Date() }));
 app.use('/api', routes);
 
 // Error Handling
